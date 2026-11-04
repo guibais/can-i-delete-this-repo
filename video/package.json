@@ -1,0 +1,19 @@
+{
+  "name": "git-manager-video",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render GitManagerPromo out/git-manager.mp4",
+    "gif": "remotion render GitManagerPromo out/git-manager.gif --every-nth-frame=2 --scale=0.5"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.540",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.540"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "typescript": "5.8.3"
+  }
+}
