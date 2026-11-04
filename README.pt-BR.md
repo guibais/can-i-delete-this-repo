@@ -11,6 +11,8 @@ libera gigabytes de `node_modules` e caches e guarda seus `.env` num cofre cript
 
 [**Baixar**](https://github.com/guibais/git-manager/releases/latest) · [**Ver o vídeo**](docs/media/git-manager.mp4) · [English](README.md)
 
+<a href="docs/media/git-manager.mp4"><img src="docs/media/git-manager.gif" width="900" alt="Ver o vídeo do Git Manager" /></a>
+
 <img src="docs/screenshots/detail.png" width="900" alt="Git Manager mostrando um projeto que precisa de atenção" />
 
 </div>

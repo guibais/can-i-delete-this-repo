@@ -17,6 +17,8 @@ reclaims gigabytes of `node_modules` and build caches, and keeps your `.env` fil
 
 [**Download**](https://github.com/guibais/git-manager/releases/latest) · [**Watch the video**](docs/media/git-manager.mp4) · [Português](README.pt-BR.md)
 
+<a href="docs/media/git-manager.mp4"><img src="docs/media/git-manager.gif" width="900" alt="Watch the Git Manager video" /></a>
+
 <img src="docs/screenshots/detail.png" width="900" alt="Git Manager showing a project that needs attention" />
 
 </div>
