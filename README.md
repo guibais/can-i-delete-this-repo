@@ -15,7 +15,7 @@ reclaims gigabytes of `node_modules` and build caches, and keeps your `.env` fil
 ![Swift](https://img.shields.io/badge/Swift-5.10-F05138?logo=swift&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[**Download**](https://github.com/guibais/git-manager/releases/latest) · [**Watch the video**](docs/media/git-manager.mp4) · [Português](README.pt-BR.md)
+[**Website & live demo**](https://guibais.github.io/git-manager/) · [**Download**](https://github.com/guibais/git-manager/releases/latest) · [**Watch the video**](docs/media/git-manager.mp4) · [Português](README.pt-BR.md)
 
 <a href="docs/media/git-manager.mp4"><img src="docs/media/git-manager.gif" width="900" alt="Watch the Git Manager video" /></a>
 

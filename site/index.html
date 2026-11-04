@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Git Manager · Can I delete this project?</title>
+  <meta name="description" content="A native macOS app that finds every Git repository on your Mac, shows what would be lost, reclaims disk space and backs up your .env files to an encrypted private Git vault. Free and open source." />
+  <meta property="og:title" content="Git Manager · Can I delete this project?" />
+  <meta property="og:description" content="Every Git project on your Mac. One clear answer. Free and open source." />
+  <meta property="og:image" content="assets/detail.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#07070a" />
+  <link rel="icon" href="assets/AppIcon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="glow"></div>
+
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top"><img src="assets/AppIcon.png" alt="" />Git Manager</a>
+      <div class="nav-links">
+        <a href="#demo" data-i18n="nav.demo">Live demo</a>
+        <a href="#features" data-i18n="nav.features">Features</a>
+        <a href="#vault" data-i18n="nav.vault">Vault</a>
+        <a href="#install" data-i18n="nav.install">Install</a>
+      </div>
+      <div class="nav-actions">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button data-lang="en">EN</button>
+          <button data-lang="pt">PT</button>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="https://github.com/guibais/git-manager"><i data-lucide="github"></i>GitHub</a>
+        <a class="btn btn-primary btn-sm" href="https://github.com/guibais/git-manager/releases/latest"><i data-lucide="download"></i><span data-i18n="cta.download">Download</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero container" id="top">
+    <img class="hero-icon" src="assets/AppIcon.png" alt="Git Manager icon" />
+    <div class="eyebrow"><b>●</b> <span data-i18n="hero.eyebrow">Free & open source · macOS 14+</span></div>
+    <h1><span data-i18n="hero.title1">Can I delete</span><br /><span class="gradient-text" data-i18n="hero.title2">this project?</span></h1>
+    <p class="lead" data-i18n="hero.lead">Git Manager finds every repository on your Mac and tells you exactly what would be lost. Push what is pending, reclaim gigabytes of node_modules and keep your .env files safe in an encrypted vault.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://github.com/guibais/git-manager/releases/latest"><i data-lucide="download"></i><span data-i18n="cta.downloadMac">Download for Mac</span></a>
+      <a class="btn btn-ghost" href="#demo"><i data-lucide="play"></i><span data-i18n="cta.try">Try it live</span></a>
+    </div>
+    <p class="hero-meta" data-i18n="hero.meta">Native SwiftUI · Apple Silicon & Intel · English & Português</p>
+  </header>
+
+  <section class="demo-wrap" id="demo">
+    <div class="container">
+      <div class="demo-hint">
+        <span><i data-lucide="mouse-pointer-click"></i><span data-i18n="hint.click">Click a project</span></span>
+        <span><i data-lucide="square-check"></i><span data-i18n="hint.select">Select one, many or all</span></span>
+        <span><i data-lucide="wand-sparkles"></i><span data-i18n="hint.fix">Fix issues and watch the status turn green</span></span>
+      </div>
+      <div class="window reveal" id="app"></div>
+      <div class="demo-footer">
+        <button class="btn btn-ghost btn-sm" id="reset"><i data-lucide="rotate-ccw"></i><span data-i18n="demo.reset">Reset demo</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="status">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker" data-i18n="status.kicker">One clear answer</div>
+        <h2 data-i18n="status.title">Every project gets a verdict.</h2>
+        <p data-i18n="status.lead">No more opening 80 terminals to check git status. Git Manager checks every branch, every stash and every ignored secret for you.</p>
+      </div>
+      <div class="status-grid">
+        <div class="status-card reveal" style="border-color: rgba(48,209,88,.3); background: rgba(48,209,88,.06)">
+          <i data-lucide="badge-check" style="color: var(--green)"></i>
+          <h3 data-i18n="status.safe">Safe to remove</h3>
+          <p data-i18n="status.safeText">Everything lives in the cloud. Delete it and lose nothing.</p>
+          <ul>
+            <li><i data-lucide="check"></i><span data-i18n="status.safe1">Has a remote</span></li>
+            <li><i data-lucide="check"></i><span data-i18n="status.safe2">Every branch pushed</span></li>
+            <li><i data-lucide="check"></i><span data-i18n="status.safe3">Secrets backed up</span></li>
+          </ul>
+        </div>
+        <div class="status-card reveal" style="border-color: rgba(255,159,10,.3); background: rgba(255,159,10,.06)">
+          <i data-lucide="triangle-alert" style="color: var(--amber)"></i>
+          <h3 data-i18n="status.attention">Needs attention</h3>
+          <p data-i18n="status.attentionText">Something would be lost, and you see exactly what.</p>
+          <ul>
+            <li><i data-lucide="pencil"></i><span data-i18n="status.att1">Uncommitted changes</span></li>
+            <li><i data-lucide="circle-arrow-up"></i><span data-i18n="status.att2">Unpushed commits or stashes</span></li>
+            <li><i data-lucide="key-round"></i><span data-i18n="status.att3">.env without backup</span></li>
+          </ul>
+        </div>
+        <div class="status-card reveal" style="border-color: rgba(255,69,58,.3); background: rgba(255,69,58,.06)">
+          <i data-lucide="octagon-x" style="color: var(--red)"></i>
+          <h3 data-i18n="status.risk">At risk</h3>
+          <p data-i18n="status.riskText">No remote at all. This project only exists on this Mac.</p>
+          <ul>
+            <li><i data-lucide="cloud-off"></i><span data-i18n="status.risk1">No GitHub, GitLab or Bitbucket</span></li>
+            <li><i data-lucide="hard-drive"></i><span data-i18n="status.risk2">One disk failure away</span></li>
+            <li><i data-lucide="cloud-upload"></i><span data-i18n="status.risk3">Publish it in one click</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker" data-i18n="features.kicker">Features</div>
+        <h2 data-i18n="features.title">Everything you need to clean up with confidence.</h2>
+      </div>
+      <div class="features">
+        <div class="feature reveal"><div class="ic" style="background: rgba(255,122,61,.15); color: var(--orange)"><i data-lucide="radar"></i></div><h3 data-i18n="f1.t">Finds every repo</h3><p data-i18n="f1.d">Scans your folders in parallel. 50, 100, 200 projects in seconds, with size and last commit.</p></div>
+        <div class="feature reveal"><div class="ic" style="background: rgba(255,159,10,.15); color: var(--amber)"><i data-lucide="git-branch"></i></div><h3 data-i18n="f2.t">Checks every branch</h3><p data-i18n="f2.d">Unpushed commits on any branch, uncommitted changes, stashes and repos with no remote.</p></div>
+        <div class="feature reveal"><div class="ic" style="background: rgba(191,90,242,.15); color: var(--purple)"><i data-lucide="sparkles"></i></div><h3 data-i18n="f3.t">Reclaims gigabytes</h3><p data-i18n="f3.d">node_modules, .next, dist, Pods, DerivedData, target, .venv, Unity Library. Gone, source untouched.</p></div>
+        <div class="feature reveal"><div class="ic" style="background: rgba(10,132,255,.15); color: var(--blue)"><i data-lucide="lock-keyhole"></i></div><h3 data-i18n="f4.t">Encrypted secrets vault</h3><p data-i18n="f4.d">Back up .env files to your own private Git repo, encrypted with AES-256 on your Mac.</p></div>
+        <div class="feature reveal"><div class="ic" style="background: rgba(48,209,88,.15); color: var(--green)"><i data-lucide="list-checks"></i></div><h3 data-i18n="f5.t">Bulk actions</h3><p data-i18n="f5.d">Select one, many or all. Push, commit, clean, back up or remove everything at once.</p></div>
+        <div class="feature reveal"><div class="ic" style="background: rgba(64,200,224,.15); color: var(--teal)"><i data-lucide="laptop"></i></div><h3 data-i18n="f6.t">Built for the Mac</h3><p data-i18n="f6.d">Native SwiftUI, SF Symbols, guided permissions onboarding. English and Português.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="vault">
+    <div class="container vault">
+      <div class="copy reveal">
+        <div class="kicker" style="color: var(--blue); font-weight: 700; font-size: 14px; letter-spacing: .08em; text-transform: uppercase" data-i18n="vault.kicker">Secrets Vault</div>
+        <h2 data-i18n="vault.title">Your .env files, safe in a private repo. For free.</h2>
+        <p data-i18n="vault.lead">Secrets are ignored by Git, so they are the first thing you lose when you delete a project or change Macs. The Vault fixes that.</p>
+        <ul class="checks">
+          <li><i data-lucide="shield-check"></i><div><b data-i18n="vault.c1">Encrypted before it leaves</b><span data-i18n="vault.c1d">AES-256-GCM on your Mac. GitHub only ever stores ciphertext.</span></div></li>
+          <li><i data-lucide="key-round"></i><div><b data-i18n="vault.c2">Your key, your Keychain</b><span data-i18n="vault.c2d">Plus a recovery key you keep in your password manager.</span></div></li>
+          <li><i data-lucide="git-compare"></i><div><b data-i18n="vault.c3">Smart sync</b><span data-i18n="vault.c3d">See what changed locally, what is newer in the vault, and restore with one click.</span></div></li>
+        </ul>
+      </div>
+      <div class="encrypt reveal" id="encrypt"></div>
+    </div>
+  </section>
+
+  <section id="migrate">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker" style="color: var(--green)" data-i18n="migrate.kicker">New Mac</div>
+        <h2 data-i18n="migrate.title">Switch Macs. Leave nothing behind.</h2>
+      </div>
+      <div class="steps">
+        <div class="step reveal"><i data-lucide="filter"></i><h3 data-i18n="m1.t">Filter what needs attention</h3><p data-i18n="m1.d">Push, commit and publish until every project turns green.</p></div>
+        <div class="step reveal"><i data-lucide="lock"></i><h3 data-i18n="m2.t">Back up all secrets</h3><p data-i18n="m2.d">One click sends every .env to your encrypted vault.</p></div>
+        <div class="step reveal"><i data-lucide="key-round"></i><h3 data-i18n="m3.t">Unlock on the new Mac</h3><p data-i18n="m3.d">Connect the same vault and paste your recovery key.</p></div>
+        <div class="step reveal"><i data-lucide="cloud-download"></i><h3 data-i18n="m4.t">Clone & restore</h3><p data-i18n="m4.d">Projects come back from Git, secrets come back from the vault.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="video">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker" data-i18n="video.kicker">Watch</div>
+        <h2 data-i18n="video.title">40 seconds. The whole idea.</h2>
+      </div>
+      <div class="video-frame reveal">
+        <video src="assets/git-manager.mp4" poster="assets/overview.png" controls playsinline preload="none"></video>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker" data-i18n="install.kicker">Get started</div>
+        <h2 data-i18n="install.title">Install in a minute.</h2>
+      </div>
+      <div class="install">
+        <div class="install-card reveal">
+          <h3><i data-lucide="download"></i><span data-i18n="install.dmg">Download the app</span></h3>
+          <p data-i18n="install.dmgText">Grab the latest .dmg, drag it to Applications. The app is not notarized yet, so remove the quarantine flag on first launch:</p>
+          <pre><button class="icon-btn copy-btn" data-copy='xattr -dr com.apple.quarantine "/Applications/Git Manager.app"'><i data-lucide="copy"></i></button>xattr -dr com.apple.quarantine \
+  "/Applications/Git Manager.app"</pre>
+        </div>
+        <div class="install-card reveal">
+          <h3><i data-lucide="terminal"></i><span data-i18n="install.source">Build from source</span></h3>
+          <p data-i18n="install.sourceText">Requires macOS 14+ and Xcode 16+.</p>
+          <pre><button class="icon-btn copy-btn" data-copy="git clone https://github.com/guibais/git-manager.git && cd git-manager && ./scripts/build-app.sh"><i data-lucide="copy"></i></button>git clone https://github.com/guibais/git-manager.git
+cd git-manager
+./scripts/build-app.sh</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="container reveal">
+      <img src="assets/AppIcon.png" alt="" />
+      <h2 data-i18n="cta.title">Clean up your Mac. Keep everything that matters.</h2>
+      <div class="hero-actions" style="margin-top: 32px">
+        <a class="btn btn-primary" href="https://github.com/guibais/git-manager/releases/latest"><i data-lucide="download"></i><span data-i18n="cta.downloadMac">Download for Mac</span></a>
+        <a class="btn btn-ghost" href="https://github.com/guibais/git-manager"><i data-lucide="star"></i><span data-i18n="cta.star">Star on GitHub</span></a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <span data-i18n="footer.license">MIT License · Made for developers with too many projects.</span>
+      <span><a href="https://github.com/guibais/git-manager">GitHub</a> · <a href="https://github.com/guibais/git-manager/releases">Releases</a> · <a href="https://github.com/guibais/git-manager/issues">Issues</a></span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script src="i18n.js"></script>
+  <script src="demo.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

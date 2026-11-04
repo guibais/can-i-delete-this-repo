@@ -9,7 +9,7 @@
 Um app nativo para macOS que encontra todos os seus repositórios, mostra o que se perderia ao remover cada um,
 libera gigabytes de `node_modules` e caches e guarda seus `.env` num cofre criptografado.
 
-[**Baixar**](https://github.com/guibais/git-manager/releases/latest) · [**Ver o vídeo**](docs/media/git-manager.mp4) · [English](README.md)
+[**Site e demo ao vivo**](https://guibais.github.io/git-manager/) · [**Baixar**](https://github.com/guibais/git-manager/releases/latest) · [**Ver o vídeo**](docs/media/git-manager.mp4) · [English](README.md)
 
 <a href="docs/media/git-manager.mp4"><img src="docs/media/git-manager.gif" width="900" alt="Ver o vídeo do Git Manager" /></a>
 
