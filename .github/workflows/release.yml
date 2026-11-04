@@ -2,47 +2,41 @@ name: Release
 
 on:
   push:
-    branches: [main]
+    tags: ["v*"]
 
 permissions:
   contents: write
-  pull-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-      version: ${{ steps.release.outputs.version }}
-    steps:
-      - id: release
-        uses: googleapis/release-please-action@v4
-        with:
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
-
-  build:
-    needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+  release:
+    name: Build & publish
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
+      - name: Test
+        run: swift test
       - name: Build universal app
-        env:
-          UNIVERSAL: "1"
-          VERSION: ${{ needs.release-please.outputs.version }}
-        run: ./scripts/build-app.sh
+        run: VERSION="${GITHUB_REF_NAME#v}" UNIVERSAL=1 ./scripts/build-app.sh
       - name: Package
-        run: |
-          cd build
-          ditto -c -k --sequesterRsrc --keepParent "Can I Delete This Repo.app" "CanIDeleteThisRepo-${{ needs.release-please.outputs.tag_name }}-macos.zip"
-          hdiutil create -volname "Can I Delete This Repo" -srcfolder "Can I Delete This Repo.app" -ov -format UDZO "CanIDeleteThisRepo-${{ needs.release-please.outputs.tag_name }}.dmg"
-          shasum -a 256 CanIDeleteThisRepo-* > checksums.txt
-      - name: Upload assets
+        run: ./scripts/package-release.sh "$GITHUB_REF_NAME"
+      - name: Release notes
+        run: ./scripts/release-notes.sh "$GITHUB_REF_NAME" > build/release/notes.md
+      - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ needs.release-please.outputs.tag_name }}" build/CanIDeleteThisRepo-* build/checksums.txt --clobber
+        run: |
+          FLAGS=()
+          [[ "$GITHUB_REF_NAME" == *-* ]] && FLAGS+=(--prerelease)
+          gh release create "$GITHUB_REF_NAME" \
+            build/release/*.dmg build/release/*.zip build/release/checksums.txt \
+            --title "Can I Delete This Repo? ${GITHUB_REF_NAME}" \
+            --notes-file build/release/notes.md \
+            --verify-tag "${FLAGS[@]+"${FLAGS[@]}"}"

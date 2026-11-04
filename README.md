@@ -129,9 +129,15 @@ video/          Remotion promo video
 
 ## Releases
 
-Releases are automated with [release-please](https://github.com/googleapis/release-please).
-Use [Conventional Commits](https://www.conventionalcommits.org) (`feat:`, `fix:`, `docs:`…). Every push to `main` updates a release PR,
-and merging it tags a version, writes the changelog and attaches a universal `.dmg` and `.zip`.
+Releases are created from tags. Pushing a tag like `v0.2.0` runs the Release workflow, which tests,
+builds a universal app (Apple Silicon + Intel), and publishes a GitHub Release with a `.dmg`, a `.zip`,
+checksums and notes grouped from [Conventional Commits](https://www.conventionalcommits.org).
+
+```bash
+./scripts/release.sh 0.2.0
+```
+
+Tags with a suffix, like `v1.0.0-beta.1`, are published as pre-releases.
 
 ## Contributing
 

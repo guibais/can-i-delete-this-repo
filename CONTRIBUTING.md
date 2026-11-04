@@ -13,6 +13,7 @@ swift test
 ## Guidelines
 
 - Use [Conventional Commits](https://www.conventionalcommits.org): `feat:`, `fix:`, `docs:`, `refactor:`, `perf:`, `chore:`. Release notes are generated from them.
+- To ship a version, run `./scripts/release.sh <version>` on `main`. It pushes a `v<version>` tag and the Release workflow publishes it.
 - Keep files small and focused. Split views before they reach ~500 lines.
 - Prefer `struct`/`enum` types, dictionary mapping over `switch`, and early returns.
 - No code comments: name things so they explain themselves.
