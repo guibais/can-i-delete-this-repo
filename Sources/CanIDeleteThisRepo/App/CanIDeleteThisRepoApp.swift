@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct GitManagerApp: App {
+struct CanIDeleteThisRepoApp: App {
     @State private var store = RepositoryStore()
 
     init() {

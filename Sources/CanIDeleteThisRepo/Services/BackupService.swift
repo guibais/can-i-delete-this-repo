@@ -17,7 +17,7 @@ struct BackupManifest: Codable {
 enum BackupService {
     static func backup(_ repositories: [Repository], to folder: URL) throws -> URL {
         let fileManager = FileManager.default
-        let root = folder.appendingPathComponent("GitManager-Backup-\(timestamp())", isDirectory: true)
+        let root = folder.appendingPathComponent("CanIDeleteThisRepo-Backup-\(timestamp())", isDirectory: true)
         let files = root.appendingPathComponent("files", isDirectory: true)
         try fileManager.createDirectory(at: files, withIntermediateDirectories: true)
 

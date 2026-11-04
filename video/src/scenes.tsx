@@ -14,10 +14,10 @@ const Intro = () => {
           <AppIcon size={200} />
         </div>
         <FadeUp delay={10}>
-          <div style={{ fontSize: 110, fontWeight: 800, letterSpacing: -3 }}>Git Manager</div>
+          <div style={{ fontSize: 104, fontWeight: 800, letterSpacing: -3 }}>Can I Delete This Repo?</div>
         </FadeUp>
         <FadeUp delay={18}>
-          <div style={{ fontSize: 40, color: theme.muted }}>Every Git project on your Mac. One clear answer.</div>
+          <div style={{ fontSize: 40, color: theme.muted }}>Every repo on your Mac. One clear answer.</div>
         </FadeUp>
       </AbsoluteFill>
     </Backdrop>
@@ -63,7 +63,7 @@ const Overview = () => (
 const Status = () => (
   <Backdrop glow={theme.green}>
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", gap: 60 }}>
-      <Headline eyebrow="The answer" title="Can I delete this?" color={theme.green} />
+      <Headline eyebrow="The answer" title="So, can you delete it?" color={theme.green} />
       <div style={{ display: "flex", flexDirection: "column", gap: 28, alignItems: "flex-start" }}>
         <Pill label="Safe to remove · everything is in the cloud" color={theme.green} delay={20} />
         <Pill label="Needs attention · something would be lost" color={theme.amber} delay={35} />
@@ -150,13 +150,13 @@ const Outro = () => (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", gap: 36 }}>
       <AppIcon size={150} />
       <FadeUp delay={6}>
-        <div style={{ fontSize: 90, fontWeight: 800, letterSpacing: -2 }}>Git Manager</div>
+        <div style={{ fontSize: 86, fontWeight: 800, letterSpacing: -2 }}>Can I Delete This Repo?</div>
       </FadeUp>
       <FadeUp delay={14}>
         <div style={{ fontSize: 38, color: theme.muted }}>Free & open source · macOS 14+ · English & Português</div>
       </FadeUp>
       <FadeUp delay={24}>
-        <div style={{ fontSize: 36, fontWeight: 700, color: theme.orange }}>github.com/guibais/git-manager</div>
+        <div style={{ fontSize: 36, fontWeight: 700, color: theme.orange }}>github.com/guibais/can-i-delete-this-repo</div>
       </FadeUp>
     </AbsoluteFill>
   </Backdrop>

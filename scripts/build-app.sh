@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-APP_NAME="Git Manager"
+APP_NAME="Can I Delete This Repo"
 APP="build/${APP_NAME}.app"
 ARCH_FLAGS=()
 [ "${UNIVERSAL:-0}" = "1" ] && ARCH_FLAGS=(--arch arm64 --arch x86_64)
@@ -13,8 +13,8 @@ BIN_PATH="$(swift build -c release "${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"}" --show-
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp "$BIN_PATH/GitManager" "$APP/Contents/MacOS/GitManager"
-cp -R "$BIN_PATH/GitManager_GitManager.bundle" "$APP/Contents/Resources/"
+cp "$BIN_PATH/CanIDeleteThisRepo" "$APP/Contents/MacOS/CanIDeleteThisRepo"
+cp -R "$BIN_PATH/CanIDeleteThisRepo_CanIDeleteThisRepo.bundle" "$APP/Contents/Resources/"
 cp Support/Info.plist "$APP/Contents/Info.plist"
 VERSION="${VERSION:-$(cat version.txt)}"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Contents/Info.plist"

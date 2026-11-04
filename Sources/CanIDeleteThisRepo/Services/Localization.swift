@@ -2,7 +2,7 @@ import Foundation
 
 enum Localization {
     static let bundle: Bundle = {
-        let bundleName = "GitManager_GitManager.bundle"
+        let bundleName = "CanIDeleteThisRepo_CanIDeleteThisRepo.bundle"
         if let url = Bundle.main.resourceURL?.appendingPathComponent(bundleName), let bundle = Bundle(url: url) {
             return bundle
         }

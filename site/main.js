@@ -6,7 +6,7 @@ const encryptRows = [
 ];
 
 const cipherAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-const randomCipher = (length) => "GMV1·" + Array.from({ length }, () => cipherAlphabet[Math.floor(Math.random() * cipherAlphabet.length)]).join("");
+const randomCipher = (length) => "CDR1·" + Array.from({ length }, () => cipherAlphabet[Math.floor(Math.random() * cipherAlphabet.length)]).join("");
 
 const renderEncrypt = () => {
   const panel = document.getElementById("encrypt");

@@ -1,10 +1,11 @@
 {
-  "name": "git-manager-video",
+  "name": "can-i-delete-this-repo-video",
   "private": true,
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render GitManagerPromo out/git-manager.mp4",
-    "gif": "remotion render GitManagerPromo out/git-manager.gif --every-nth-frame=2 --scale=0.5"
+    "render": "remotion render CanIDeleteThisRepoPromo out/can-i-delete-this-repo.mp4",
+    "gif": "ffmpeg -y -i out/can-i-delete-this-repo.mp4 -vf \"fps=12,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle\" out/can-i-delete-this-repo.gif",
+    "publish": "cp out/can-i-delete-this-repo.mp4 out/can-i-delete-this-repo.gif ../docs/media/"
   },
   "dependencies": {
     "@remotion/cli": "4.0.540",

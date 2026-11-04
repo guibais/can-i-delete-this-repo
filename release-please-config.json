@@ -3,7 +3,7 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "package-name": "git-manager",
+      "package-name": "can-i-delete-this-repo",
       "changelog-path": "CHANGELOG.md",
       "include-v-in-tag": true,
       "changelog-sections": [

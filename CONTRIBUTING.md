@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping make Git Manager better.
+Thanks for helping make Can I Delete This Repo? better.
 
 ## Setup
 

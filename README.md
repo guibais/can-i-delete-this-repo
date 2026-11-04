@@ -1,25 +1,25 @@
 <div align="center">
 
-<img src="Support/AppIcon.png" width="128" alt="Git Manager icon" />
+<img src="Support/AppIcon.png" width="128" alt="Can I Delete This Repo? icon" />
 
-# Git Manager
+# Can I Delete This Repo?
 
-**Every Git project on your Mac. One clear answer: can I delete this?**
+**Every Git repo on your Mac. One clear answer before you hit delete.**
 
 A native macOS app that finds all your repositories, shows what would be lost if you removed each one,
 reclaims gigabytes of `node_modules` and build caches, and keeps your `.env` files safe in an encrypted vault.
 
-[![CI](https://github.com/guibais/git-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/guibais/git-manager/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/guibais/git-manager?sort=semver)](https://github.com/guibais/git-manager/releases/latest)
+[![CI](https://github.com/guibais/can-i-delete-this-repo/actions/workflows/ci.yml/badge.svg)](https://github.com/guibais/can-i-delete-this-repo/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/guibais/can-i-delete-this-repo?sort=semver)](https://github.com/guibais/can-i-delete-this-repo/releases/latest)
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-5.10-F05138?logo=swift&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[**Website & live demo**](https://guibais.github.io/git-manager/) · [**Download**](https://github.com/guibais/git-manager/releases/latest) · [**Watch the video**](docs/media/git-manager.mp4) · [Português](README.pt-BR.md)
+[**Website & live demo**](https://guibais.github.io/can-i-delete-this-repo/) · [**Download**](https://github.com/guibais/can-i-delete-this-repo/releases/latest) · [**Watch the video**](docs/media/can-i-delete-this-repo.mp4) · [Português](README.pt-BR.md)
 
-<a href="docs/media/git-manager.mp4"><img src="docs/media/git-manager.gif" width="900" alt="Watch the Git Manager video" /></a>
+<a href="docs/media/can-i-delete-this-repo.mp4"><img src="docs/media/can-i-delete-this-repo.gif" width="900" alt="Watch the video" /></a>
 
-<img src="docs/screenshots/detail.png" width="900" alt="Git Manager showing a project that needs attention" />
+<img src="docs/screenshots/detail.png" width="900" alt="A project that needs attention before it can be deleted" />
 
 </div>
 
@@ -30,7 +30,7 @@ reclaims gigabytes of `node_modules` and build caches, and keeps your `.env` fil
 You have 50, 80, 100 projects on your Mac. Some are safely on GitHub. Some have a commit you never pushed.
 Some have a `.env` that exists nowhere else. And together they eat 100 GB of disk.
 
-Git Manager answers, for every single project, the only question that matters before you hit delete:
+This app answers, for every single project, the only question that matters before you hit delete:
 
 | | Status | Meaning |
 |---|---|---|
@@ -70,17 +70,17 @@ Git Manager answers, for every single project, the only question that matters be
 
 1. On the old Mac: filter **Needs attention** and fix everything (push, commit, back up secrets)
 2. Back up all secrets to your Vault
-3. On the new Mac: install Git Manager, connect the same Vault, paste your recovery key
+3. On the new Mac: install Can I Delete This Repo?, connect the same Vault, paste your recovery key
 4. Open the Vault and hit **Clone & Restore**. Your projects come back from Git, your secrets from the Vault
 
 ## Install
 
-Download the latest `.dmg` from [Releases](https://github.com/guibais/git-manager/releases/latest) and drag **Git Manager** to Applications.
+Download the latest `.dmg` from [Releases](https://github.com/guibais/can-i-delete-this-repo/releases/latest) and drag **Can I Delete This Repo** to Applications.
 
 The app is open source and not notarized yet. On first launch, right-click it and choose **Open**, or run:
 
 ```bash
-xattr -dr com.apple.quarantine "/Applications/Git Manager.app"
+xattr -dr com.apple.quarantine "/Applications/Can I Delete This Repo.app"
 ```
 
 ## Build from source
@@ -88,17 +88,17 @@ xattr -dr com.apple.quarantine "/Applications/Git Manager.app"
 Requirements: macOS 14+, Xcode 16+.
 
 ```bash
-git clone https://github.com/guibais/git-manager.git
-cd git-manager
+git clone https://github.com/guibais/can-i-delete-this-repo.git
+cd can-i-delete-this-repo
 swift run                    # run from source
 swift test                   # run the test suite
-./scripts/build-app.sh       # build "build/Git Manager.app"
+./scripts/build-app.sh       # build "build/Can I Delete This Repo.app"
 ```
 
 Demo mode with fake data, useful for screenshots:
 
 ```bash
-GITMANAGER_DEMO=1 "build/Git Manager.app/Contents/MacOS/GitManager"
+CANIDELETE_DEMO=1 "build/Can I Delete This Repo.app/Contents/MacOS/CanIDeleteThisRepo"
 ```
 
 ## How the Vault works
@@ -109,7 +109,7 @@ secrets-vault/                       (your private repo)
 ├── index.json
 └── github.com/you/my-app/
     ├── manifest.json                paths, SHA-256, dates
-    └── files/.env.enc               "GMV1" + AES.GCM sealed box
+    └── files/.env.enc               "CDR1" + AES.GCM sealed box
 ```
 
 Projects are matched by their remote URL, so restoring works no matter where the folder lives on the new Mac.
@@ -117,7 +117,7 @@ Projects are matched by their remote URL, so restoring works no matter where the
 ## Project structure
 
 ```
-Sources/GitManager
+Sources/CanIDeleteThisRepo
 ├── App/        entry point and scenes
 ├── Models/     Repository, GitSnapshot, issues, vault types
 ├── Services/   git, scanner, disk usage, vault, crypto, permissions

@@ -4,13 +4,13 @@ const translations = {
     "cta.download": "Download", "cta.downloadMac": "Download for Mac", "cta.try": "Try it live", "cta.star": "Star on GitHub",
     "cta.title": "Clean up your Mac. Keep everything that matters.",
     "hero.eyebrow": "Free & open source · macOS 14+",
-    "hero.title1": "Can I delete", "hero.title2": "this project?",
-    "hero.lead": "Git Manager finds every repository on your Mac and tells you exactly what would be lost. Push what is pending, reclaim gigabytes of node_modules and keep your .env files safe in an encrypted vault.",
+    "hero.title1": "Can I delete", "hero.title2": "this repo?",
+    "hero.lead": "Find every repository on your Mac and see exactly what would be lost. Push what is pending, reclaim gigabytes of node_modules and keep your .env files safe in an encrypted vault.",
     "hero.meta": "Native SwiftUI · Apple Silicon & Intel · English & Português",
     "hint.click": "Click a project", "hint.select": "Select one, many or all", "hint.fix": "Fix issues and watch the status turn green",
     "demo.reset": "Reset demo",
     "status.kicker": "One clear answer", "status.title": "Every project gets a verdict.",
-    "status.lead": "No more opening 80 terminals to check git status. Git Manager checks every branch, every stash and every ignored secret for you.",
+    "status.lead": "No more opening 80 terminals to check git status. It checks every branch, every stash and every ignored secret for you.",
     "status.safe": "Safe to remove", "status.safeText": "Everything lives in the cloud. Delete it and lose nothing.",
     "status.safe1": "Has a remote", "status.safe2": "Every branch pushed", "status.safe3": "Secrets backed up",
     "status.attention": "Needs attention", "status.attentionText": "Something would be lost, and you see exactly what.",
@@ -77,13 +77,13 @@ const translations = {
     "cta.download": "Baixar", "cta.downloadMac": "Baixar para Mac", "cta.try": "Testar ao vivo", "cta.star": "Dar estrela no GitHub",
     "cta.title": "Limpe seu Mac. Mantenha tudo o que importa.",
     "hero.eyebrow": "Grátis e open source · macOS 14+",
-    "hero.title1": "Posso apagar", "hero.title2": "este projeto?",
-    "hero.lead": "O Git Manager encontra todos os repositórios do seu Mac e mostra exatamente o que seria perdido. Envie o que está pendente, libere gigabytes de node_modules e guarde seus .env num cofre criptografado.",
+    "hero.title1": "Posso apagar", "hero.title2": "este repo?",
+    "hero.lead": "Encontre todos os repositórios do seu Mac e veja exatamente o que seria perdido. Envie o que está pendente, libere gigabytes de node_modules e guarde seus .env num cofre criptografado.",
     "hero.meta": "SwiftUI nativo · Apple Silicon e Intel · English e Português",
     "hint.click": "Clique num projeto", "hint.select": "Selecione um, vários ou todos", "hint.fix": "Resolva pendências e veja o status ficar verde",
     "demo.reset": "Reiniciar demo",
     "status.kicker": "Uma resposta clara", "status.title": "Cada projeto recebe um veredito.",
-    "status.lead": "Chega de abrir 80 terminais para rodar git status. O Git Manager verifica cada branch, cada stash e cada segredo ignorado por você.",
+    "status.lead": "Chega de abrir 80 terminais para rodar git status. O app verifica cada branch, cada stash e cada segredo ignorado por você.",
     "status.safe": "Seguro remover", "status.safeText": "Tudo está na nuvem. Apague e não perca nada.",
     "status.safe1": "Tem remoto", "status.safe2": "Todas as branches enviadas", "status.safe3": "Segredos com backup",
     "status.attention": "Atenção", "status.attentionText": "Algo seria perdido, e você vê exatamente o quê.",
@@ -160,13 +160,13 @@ const i18n = {
   },
   set(lang) {
     i18n.lang = translations[lang] ? lang : "en";
-    try { localStorage.setItem("gm.lang", i18n.lang); } catch {}
+    try { localStorage.setItem("cidr.lang", i18n.lang); } catch {}
     i18n.apply();
     document.dispatchEvent(new CustomEvent("langchange"));
   },
   init() {
     let saved = null;
-    try { saved = localStorage.getItem("gm.lang"); } catch {}
+    try { saved = localStorage.getItem("cidr.lang"); } catch {}
     const detected = navigator.language?.toLowerCase().startsWith("pt") ? "pt" : "en";
     i18n.lang = saved ?? detected;
     i18n.apply();

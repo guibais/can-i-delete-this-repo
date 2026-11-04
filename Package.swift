@@ -2,17 +2,17 @@
 import PackageDescription
 
 let package = Package(
-    name: "GitManager",
+    name: "CanIDeleteThisRepo",
     defaultLocalization: "en",
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
-            name: "GitManager",
+            name: "CanIDeleteThisRepo",
             resources: [.process("Resources")]
         ),
         .testTarget(
-            name: "GitManagerTests",
-            dependencies: ["GitManager"]
+            name: "CanIDeleteThisRepoTests",
+            dependencies: ["CanIDeleteThisRepo"]
         )
     ]
 )

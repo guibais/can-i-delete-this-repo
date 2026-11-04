@@ -39,10 +39,10 @@ jobs:
       - name: Package
         run: |
           cd build
-          ditto -c -k --sequesterRsrc --keepParent "Git Manager.app" "GitManager-${{ needs.release-please.outputs.tag_name }}-macos.zip"
-          hdiutil create -volname "Git Manager" -srcfolder "Git Manager.app" -ov -format UDZO "GitManager-${{ needs.release-please.outputs.tag_name }}.dmg"
-          shasum -a 256 GitManager-* > checksums.txt
+          ditto -c -k --sequesterRsrc --keepParent "Can I Delete This Repo.app" "CanIDeleteThisRepo-${{ needs.release-please.outputs.tag_name }}-macos.zip"
+          hdiutil create -volname "Can I Delete This Repo" -srcfolder "Can I Delete This Repo.app" -ov -format UDZO "CanIDeleteThisRepo-${{ needs.release-please.outputs.tag_name }}.dmg"
+          shasum -a 256 CanIDeleteThisRepo-* > checksums.txt
       - name: Upload assets
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ needs.release-please.outputs.tag_name }}" build/GitManager-* build/checksums.txt --clobber
+        run: gh release upload "${{ needs.release-please.outputs.tag_name }}" build/CanIDeleteThisRepo-* build/checksums.txt --clobber

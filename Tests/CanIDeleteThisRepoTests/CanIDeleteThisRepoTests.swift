@@ -1,5 +1,5 @@
 import XCTest
-@testable import GitManager
+@testable import CanIDeleteThisRepo
 
 final class GitParsingTests: XCTestCase {
     func testParseBranchWithUpstream() {

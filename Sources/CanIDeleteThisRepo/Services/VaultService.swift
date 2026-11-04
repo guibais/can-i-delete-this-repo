@@ -3,11 +3,11 @@ import Foundation
 
 enum VaultService {
     static let root: URL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("GitManager/vault", isDirectory: true)
+        .appendingPathComponent("CanIDeleteThisRepo/vault", isDirectory: true)
 
     private static let configURL = root.appendingPathComponent(".vault.json")
     private static let indexURL = root.appendingPathComponent("index.json")
-    private static let checkPhrase = Data("git-manager-vault".utf8)
+    private static let checkPhrase = Data("can-i-delete-this-repo-vault".utf8)
     private static let machine = Host.current().localizedName ?? "Mac"
 
     static var isCloned: Bool {
@@ -91,7 +91,7 @@ enum VaultService {
         let unchanged = await git(["diff", "--cached", "--quiet"])
         guard !unchanged.succeeded else { return .success }
         let email = await git(["config", "user.email"])
-        let identity = email.trimmedOutput.isEmpty ? ["-c", "user.name=Git Manager", "-c", "user.email=git-manager@localhost"] : []
+        let identity = email.trimmedOutput.isEmpty ? ["-c", "user.name=Can I Delete This Repo", "-c", "user.email=can-i-delete-this-repo@localhost"] : []
         let commit = await git(identity + ["commit", "-m", message])
         guard commit.succeeded else { return commit }
         return await git(["push", "-u", "origin", "HEAD"])
@@ -187,12 +187,12 @@ enum VaultService {
     }
 
     private static let readme = """
-    # Git Manager Vault
+    # Can I Delete This Repo? · Vault
 
-    Encrypted backup of ignored secrets (.env and friends) managed by Git Manager.
+    Encrypted backup of ignored secrets (.env and friends) managed by Can I Delete This Repo? (github.com/guibais/can-i-delete-this-repo).
 
     - Every file is encrypted on your Mac with AES-256-GCM before it is committed.
-    - File format: the 4 bytes `GMV1` followed by the CryptoKit AES.GCM combined box (nonce + ciphertext + tag).
+    - File format: the 4 bytes `CDR1` followed by the CryptoKit AES.GCM combined box (nonce + ciphertext + tag).
     - The key lives in your Keychain. Keep the recovery key in a password manager.
     - Layout: `<host>/<owner>/<repo>/manifest.json` and `<host>/<owner>/<repo>/files/<path>.enc`.
 

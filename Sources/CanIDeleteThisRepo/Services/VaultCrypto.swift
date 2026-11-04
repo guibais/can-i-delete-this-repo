@@ -3,9 +3,9 @@ import Foundation
 import Security
 
 enum VaultCrypto {
-    private static let service = "io.github.gitmanager.vault"
+    private static let service = "io.github.guibais.canideletethisrepo.vault"
     private static let account = "vault-key"
-    private static let magic = Data("GMV1".utf8)
+    private static let magic = Data("CDR1".utf8)
     private static let syncedKey = "vault.keySynced"
 
     private static var baseQuery: [String: Any] {
@@ -87,7 +87,7 @@ enum VaultCrypto {
         query[kSecValueData as String] = data
         query[kSecAttrSynchronizable as String] = synchronizable ? kCFBooleanTrue : kCFBooleanFalse
         query[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
-        query[kSecAttrLabel as String] = "Git Manager Vault Key"
+        query[kSecAttrLabel as String] = "Can I Delete This Repo Vault Key"
         return SecItemAdd(query as CFDictionary, nil)
     }
 }

@@ -146,8 +146,8 @@
 "onboarding.status.granted" = "Permitido";
 "onboarding.status.denied" = "Negado";
 "onboarding.status.unknown" = "Não definido";
-"onboarding.welcome.title" = "Bem-vindo ao Git Manager";
-"onboarding.welcome.message" = "Encontre todos os projetos Git do seu Mac e saiba exatamente o que é seguro remover.";
+"onboarding.welcome.title" = "Posso apagar este repo?";
+"onboarding.welcome.message" = "Vamos descobrir. Este app encontra todos os projetos Git do seu Mac e mostra exatamente o que é seguro remover.";
 "onboarding.welcome.safe" = "Veja quais projetos estão totalmente sincronizados na nuvem";
 "onboarding.welcome.secrets" = "Encontre e faça backup de arquivos .env e outros segredos";
 "onboarding.welcome.clean" = "Libere espaço de node_modules, builds e caches";
@@ -155,14 +155,14 @@
 "onboarding.fullDisk.title" = "Acesso Total ao Disco";
 "onboarding.fullDisk.message" = "Recomendado. Permite escanear todas as pastas sem pedir permissão toda hora.";
 "onboarding.fullDisk.row" = "Acesso Total ao Disco";
-"onboarding.fullDisk.hint" = "Nos Ajustes do Sistema, ative o Git Manager em Privacidade e Segurança › Acesso Total ao Disco e volte aqui. Você pode pular e permitir pasta por pasta.";
+"onboarding.fullDisk.hint" = "Nos Ajustes do Sistema, ative o Can I Delete This Repo em Privacidade e Segurança › Acesso Total ao Disco e volte aqui. Você pode pular e permitir pasta por pasta.";
 "onboarding.folders.title" = "Suas Pastas";
 "onboarding.folders.message" = "O macOS protege estas pastas. Permita o acesso para encontrar os projetos dentro delas.";
 "onboarding.folder.Desktop" = "Mesa";
 "onboarding.folder.Documents" = "Documentos";
 "onboarding.folder.Downloads" = "Downloads";
 "onboarding.git.title" = "Git";
-"onboarding.git.message" = "O Git Manager usa o Git instalado no seu Mac e suas credenciais existentes (chaves SSH ou Keychain).";
+"onboarding.git.message" = "O app usa o Git instalado no seu Mac e suas credenciais existentes (chaves SSH ou Keychain).";
 "onboarding.git.missing" = "Git não encontrado";
 "onboarding.git.install" = "Instalar";
 "onboarding.git.hint" = "O push usa as mesmas credenciais do Terminal. Nada é armazenado por este app.";
@@ -211,7 +211,7 @@
 "vault.error.gh" = "Não foi possível criar o repositório. O GitHub CLI está instalado e logado?";
 "vault.error.missingKey" = "A chave do cofre não foi encontrada. Configure o cofre novamente com sua chave de recuperação.";
 "vault.error.wrongKey" = "Esta chave de recuperação não desbloqueia o cofre.";
-"vault.error.invalidData" = "Um arquivo do cofre está danificado ou não foi criptografado pelo Git Manager.";
+"vault.error.invalidData" = "Um arquivo do cofre está danificado ou não foi criptografado por este app.";
 "secret.state.synced" = "No cofre";
 "secret.state.notBackedUp" = "Sem backup";
 "secret.state.localNewer" = "Alterado localmente";

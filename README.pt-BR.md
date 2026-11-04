@@ -1,19 +1,19 @@
 <div align="center">
 
-<img src="Support/AppIcon.png" width="128" alt="Ícone do Git Manager" />
+<img src="Support/AppIcon.png" width="128" alt="Ícone do Can I Delete This Repo?" />
 
-# Git Manager
+# Can I Delete This Repo?
 
 **Todos os projetos Git do seu Mac. Uma resposta clara: posso apagar este?**
 
 Um app nativo para macOS que encontra todos os seus repositórios, mostra o que se perderia ao remover cada um,
 libera gigabytes de `node_modules` e caches e guarda seus `.env` num cofre criptografado.
 
-[**Site e demo ao vivo**](https://guibais.github.io/git-manager/) · [**Baixar**](https://github.com/guibais/git-manager/releases/latest) · [**Ver o vídeo**](docs/media/git-manager.mp4) · [English](README.md)
+[**Site e demo ao vivo**](https://guibais.github.io/can-i-delete-this-repo/) · [**Baixar**](https://github.com/guibais/can-i-delete-this-repo/releases/latest) · [**Ver o vídeo**](docs/media/can-i-delete-this-repo.mp4) · [English](README.md)
 
-<a href="docs/media/git-manager.mp4"><img src="docs/media/git-manager.gif" width="900" alt="Ver o vídeo do Git Manager" /></a>
+<a href="docs/media/can-i-delete-this-repo.mp4"><img src="docs/media/can-i-delete-this-repo.gif" width="900" alt="Ver o vídeo" /></a>
 
-<img src="docs/screenshots/detail.png" width="900" alt="Git Manager mostrando um projeto que precisa de atenção" />
+<img src="docs/screenshots/detail.png" width="900" alt="Um projeto que precisa de atenção antes de ser apagado" />
 
 </div>
 
@@ -40,7 +40,7 @@ Outros têm um `.env` que não existe em nenhum outro lugar. E juntos ocupam 100
 
 ## Instalar
 
-Baixe o `.dmg` em [Releases](https://github.com/guibais/git-manager/releases/latest). Na primeira vez, clique com o botão direito e escolha **Abrir**.
+Baixe o `.dmg` em [Releases](https://github.com/guibais/can-i-delete-this-repo/releases/latest). Na primeira vez, clique com o botão direito e escolha **Abrir**.
 
 ## Compilar
 

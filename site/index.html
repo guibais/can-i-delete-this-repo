@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Git Manager · Can I delete this project?</title>
+  <title>Can I Delete This Repo? · Know what is safe to delete on your Mac</title>
   <meta name="description" content="A native macOS app that finds every Git repository on your Mac, shows what would be lost, reclaims disk space and backs up your .env files to an encrypted private Git vault. Free and open source." />
-  <meta property="og:title" content="Git Manager · Can I delete this project?" />
-  <meta property="og:description" content="Every Git project on your Mac. One clear answer. Free and open source." />
+  <meta property="og:title" content="Can I Delete This Repo?" />
+  <meta property="og:description" content="Every Git repo on your Mac. One clear answer before you hit delete. Free and open source." />
   <meta property="og:image" content="assets/detail.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="theme-color" content="#07070a" />
@@ -20,7 +20,7 @@
 
   <nav class="nav">
     <div class="container nav-inner">
-      <a class="brand" href="#top"><img src="assets/AppIcon.png" alt="" />Git Manager</a>
+      <a class="brand" href="#top"><img src="assets/AppIcon.png" alt="" /><span class="brand-text">Can I Delete This Repo?</span></a>
       <div class="nav-links">
         <a href="#demo" data-i18n="nav.demo">Live demo</a>
         <a href="#features" data-i18n="nav.features">Features</a>
@@ -32,19 +32,19 @@
           <button data-lang="en">EN</button>
           <button data-lang="pt">PT</button>
         </div>
-        <a class="btn btn-ghost btn-sm" href="https://github.com/guibais/git-manager"><i data-lucide="github"></i>GitHub</a>
-        <a class="btn btn-primary btn-sm" href="https://github.com/guibais/git-manager/releases/latest"><i data-lucide="download"></i><span data-i18n="cta.download">Download</span></a>
+        <a class="btn btn-ghost btn-sm" href="https://github.com/guibais/can-i-delete-this-repo"><i data-lucide="github"></i>GitHub</a>
+        <a class="btn btn-primary btn-sm" href="https://github.com/guibais/can-i-delete-this-repo/releases/latest"><i data-lucide="download"></i><span data-i18n="cta.download">Download</span></a>
       </div>
     </div>
   </nav>
 
   <header class="hero container" id="top">
-    <img class="hero-icon" src="assets/AppIcon.png" alt="Git Manager icon" />
+    <img class="hero-icon" src="assets/AppIcon.png" alt="Can I Delete This Repo? icon" />
     <div class="eyebrow"><b>●</b> <span data-i18n="hero.eyebrow">Free & open source · macOS 14+</span></div>
-    <h1><span data-i18n="hero.title1">Can I delete</span><br /><span class="gradient-text" data-i18n="hero.title2">this project?</span></h1>
-    <p class="lead" data-i18n="hero.lead">Git Manager finds every repository on your Mac and tells you exactly what would be lost. Push what is pending, reclaim gigabytes of node_modules and keep your .env files safe in an encrypted vault.</p>
+    <h1><span data-i18n="hero.title1">Can I delete</span><br /><span class="gradient-text" data-i18n="hero.title2">this repo?</span></h1>
+    <p class="lead" data-i18n="hero.lead">Find every repository on your Mac and see exactly what would be lost. Push what is pending, reclaim gigabytes of node_modules and keep your .env files safe in an encrypted vault.</p>
     <div class="hero-actions">
-      <a class="btn btn-primary" href="https://github.com/guibais/git-manager/releases/latest"><i data-lucide="download"></i><span data-i18n="cta.downloadMac">Download for Mac</span></a>
+      <a class="btn btn-primary" href="https://github.com/guibais/can-i-delete-this-repo/releases/latest"><i data-lucide="download"></i><span data-i18n="cta.downloadMac">Download for Mac</span></a>
       <a class="btn btn-ghost" href="#demo"><i data-lucide="play"></i><span data-i18n="cta.try">Try it live</span></a>
     </div>
     <p class="hero-meta" data-i18n="hero.meta">Native SwiftUI · Apple Silicon & Intel · English & Português</p>
@@ -69,7 +69,7 @@
       <div class="section-head reveal">
         <div class="kicker" data-i18n="status.kicker">One clear answer</div>
         <h2 data-i18n="status.title">Every project gets a verdict.</h2>
-        <p data-i18n="status.lead">No more opening 80 terminals to check git status. Git Manager checks every branch, every stash and every ignored secret for you.</p>
+        <p data-i18n="status.lead">No more opening 80 terminals to check git status. It checks every branch, every stash and every ignored secret for you.</p>
       </div>
       <div class="status-grid">
         <div class="status-card reveal" style="border-color: rgba(48,209,88,.3); background: rgba(48,209,88,.06)">
@@ -161,7 +161,7 @@
         <h2 data-i18n="video.title">40 seconds. The whole idea.</h2>
       </div>
       <div class="video-frame reveal">
-        <video src="assets/git-manager.mp4" poster="assets/overview.png" controls playsinline preload="none"></video>
+        <video src="assets/can-i-delete-this-repo.mp4" poster="assets/overview.png" controls playsinline preload="none"></video>
       </div>
     </div>
   </section>
@@ -176,14 +176,14 @@
         <div class="install-card reveal">
           <h3><i data-lucide="download"></i><span data-i18n="install.dmg">Download the app</span></h3>
           <p data-i18n="install.dmgText">Grab the latest .dmg, drag it to Applications. The app is not notarized yet, so remove the quarantine flag on first launch:</p>
-          <pre><button class="icon-btn copy-btn" data-copy='xattr -dr com.apple.quarantine "/Applications/Git Manager.app"'><i data-lucide="copy"></i></button>xattr -dr com.apple.quarantine \
-  "/Applications/Git Manager.app"</pre>
+          <pre><button class="icon-btn copy-btn" data-copy='xattr -dr com.apple.quarantine "/Applications/Can I Delete This Repo.app"'><i data-lucide="copy"></i></button>xattr -dr com.apple.quarantine \
+  "/Applications/Can I Delete This Repo.app"</pre>
         </div>
         <div class="install-card reveal">
           <h3><i data-lucide="terminal"></i><span data-i18n="install.source">Build from source</span></h3>
           <p data-i18n="install.sourceText">Requires macOS 14+ and Xcode 16+.</p>
-          <pre><button class="icon-btn copy-btn" data-copy="git clone https://github.com/guibais/git-manager.git && cd git-manager && ./scripts/build-app.sh"><i data-lucide="copy"></i></button>git clone https://github.com/guibais/git-manager.git
-cd git-manager
+          <pre><button class="icon-btn copy-btn" data-copy="git clone https://github.com/guibais/can-i-delete-this-repo.git && cd can-i-delete-this-repo && ./scripts/build-app.sh"><i data-lucide="copy"></i></button>git clone https://github.com/guibais/can-i-delete-this-repo.git
+cd can-i-delete-this-repo
 ./scripts/build-app.sh</pre>
         </div>
       </div>
@@ -195,8 +195,8 @@ cd git-manager
       <img src="assets/AppIcon.png" alt="" />
       <h2 data-i18n="cta.title">Clean up your Mac. Keep everything that matters.</h2>
       <div class="hero-actions" style="margin-top: 32px">
-        <a class="btn btn-primary" href="https://github.com/guibais/git-manager/releases/latest"><i data-lucide="download"></i><span data-i18n="cta.downloadMac">Download for Mac</span></a>
-        <a class="btn btn-ghost" href="https://github.com/guibais/git-manager"><i data-lucide="star"></i><span data-i18n="cta.star">Star on GitHub</span></a>
+        <a class="btn btn-primary" href="https://github.com/guibais/can-i-delete-this-repo/releases/latest"><i data-lucide="download"></i><span data-i18n="cta.downloadMac">Download for Mac</span></a>
+        <a class="btn btn-ghost" href="https://github.com/guibais/can-i-delete-this-repo"><i data-lucide="star"></i><span data-i18n="cta.star">Star on GitHub</span></a>
       </div>
     </div>
   </section>
@@ -204,7 +204,7 @@ cd git-manager
   <footer>
     <div class="container">
       <span data-i18n="footer.license">MIT License · Made for developers with too many projects.</span>
-      <span><a href="https://github.com/guibais/git-manager">GitHub</a> · <a href="https://github.com/guibais/git-manager/releases">Releases</a> · <a href="https://github.com/guibais/git-manager/issues">Issues</a></span>
+      <span><a href="https://github.com/guibais/can-i-delete-this-repo">GitHub</a> · <a href="https://github.com/guibais/can-i-delete-this-repo/releases">Releases</a> · <a href="https://github.com/guibais/can-i-delete-this-repo/issues">Issues</a></span>
     </div>
   </footer>
 

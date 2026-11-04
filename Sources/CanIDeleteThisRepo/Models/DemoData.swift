@@ -1,8 +1,8 @@
 import Foundation
 
 enum DemoData {
-    static var isEnabled: Bool { ProcessInfo.processInfo.environment["GITMANAGER_DEMO"] == "1" }
-    static var selectedName: String? { ProcessInfo.processInfo.environment["GITMANAGER_DEMO_SELECT"] }
+    static var isEnabled: Bool { ProcessInfo.processInfo.environment["CANIDELETE_DEMO"] == "1" }
+    static var selectedName: String? { ProcessInfo.processInfo.environment["CANIDELETE_DEMO_SELECT"] }
 
     private static let gigabyte: Int64 = 1_073_741_824
     private static let megabyte: Int64 = 1_048_576
