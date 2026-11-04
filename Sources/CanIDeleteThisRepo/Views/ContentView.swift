@@ -2,13 +2,14 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(RepositoryStore.self) private var store
-    @State private var filter: SidebarFilter? = .all
+    @State private var filter: SidebarFilter? = DemoData.initialFilter
     @State private var selection: Set<Repository.ID> = Set(DemoData.repositories.filter { $0.name == DemoData.selectedName }.map(\.id))
     @State private var search = ""
     @AppStorage("onboarding.completed") private var onboardingCompleted = false
 
+    private var activeFilter: SidebarFilter { filter ?? .home }
+
     private var visibleRepositories: [Repository] {
-        let activeFilter = filter ?? .all
         let query = search.trimmingCharacters(in: .whitespaces)
         return store.repositories.filter { repository in
             activeFilter.matches(repository) && (query.isEmpty || repository.displayPath.localizedCaseInsensitiveContains(query))
@@ -16,24 +17,20 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
-            SidebarView(filter: $filter)
-        } content: {
-            RepositoryListView(filter: filter ?? .all, repositories: visibleRepositories, selection: $selection)
-                .navigationTitle(L((filter ?? .all).titleKey))
-                .navigationSubtitle(L("summary.repos", visibleRepositories.count))
-                .searchable(text: $search, placement: .toolbar, prompt: L("search.prompt"))
-                .navigationSplitViewColumnWidth(min: 460, ideal: 620)
-        } detail: {
-            DetailContainer(selection: selection)
-                .navigationSplitViewColumnWidth(min: 380, ideal: 460)
+        Group {
+            if activeFilter == .home {
+                homeLayout
+            } else {
+                listLayout
+            }
         }
         .toolbar { MainToolbar() }
-        .overlay(alignment: .bottom) { toastOverlay }
-        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: store.toast)
-        .task(id: store.toast?.id) { await dismissToast() }
+        .statusOverlay()
         .task { await initialScan() }
         .onChange(of: filter) { selection = [] }
+        .sheet(item: store.backupRequestBinding(for: .main)) { request in
+            BackupSheet(request: request).environment(store)
+        }
         .sheet(isPresented: showOnboarding) {
             OnboardingView { onboardingCompleted = true; Task { await store.scan() } }
                 .environment(store)
@@ -41,19 +38,29 @@ struct ContentView: View {
         }
     }
 
-    @ViewBuilder
-    private var toastOverlay: some View {
-        if let toast = store.toast {
-            ToastView(toast: toast)
-                .padding(.bottom, 24)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+    private var homeLayout: some View {
+        NavigationSplitView {
+            SidebarView(filter: $filter)
+        } detail: {
+            DashboardView { filter = $0 }
+                .navigationTitle(L(SidebarFilter.home.titleKey))
+                .navigationSubtitle(L("summary.repos", store.repositories.count))
         }
     }
 
-    private func dismissToast() async {
-        guard store.toast != nil else { return }
-        try? await Task.sleep(for: .seconds(4))
-        store.toast = nil
+    private var listLayout: some View {
+        NavigationSplitView {
+            SidebarView(filter: $filter)
+        } content: {
+            RepositoryListView(filter: activeFilter, repositories: visibleRepositories, selection: $selection)
+                .navigationTitle(L(activeFilter.titleKey))
+                .navigationSubtitle(L("summary.repos", visibleRepositories.count))
+                .searchable(text: $search, placement: .toolbar, prompt: L("search.prompt"))
+                .navigationSplitViewColumnWidth(min: 460, ideal: 620)
+        } detail: {
+            DetailContainer(selection: selection)
+                .navigationSplitViewColumnWidth(min: 380, ideal: 460)
+        }
     }
 
     private var showOnboarding: Binding<Bool> {
@@ -72,6 +79,11 @@ private struct MainToolbar: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
+            SettingsLink {
+                Label(L("settings.open"), systemImage: "gearshape")
+            }
+            .help(L("settings.open"))
+
             Button { openWindow(id: VaultWindow.id) } label: {
                 Label(L("vault.title"), systemImage: "lock.shield")
             }

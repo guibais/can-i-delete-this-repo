@@ -1,6 +1,7 @@
 import Foundation
 
 enum SidebarFilter: String, CaseIterable, Identifiable, Hashable {
+    case home
     case all
     case safe
     case attention
@@ -9,6 +10,7 @@ enum SidebarFilter: String, CaseIterable, Identifiable, Hashable {
     case cleanable
 
     private static let predicates: [SidebarFilter: (Repository) -> Bool] = [
+        .home: { _ in true },
         .all: { _ in true },
         .safe: { $0.severity == .safe },
         .attention: { $0.severity == .warning },
@@ -18,6 +20,7 @@ enum SidebarFilter: String, CaseIterable, Identifiable, Hashable {
     ]
 
     private static let symbols: [SidebarFilter: String] = [
+        .home: "house.fill",
         .all: "square.stack.3d.up.fill",
         .safe: "checkmark.seal.fill",
         .attention: "exclamationmark.triangle.fill",
@@ -25,6 +28,8 @@ enum SidebarFilter: String, CaseIterable, Identifiable, Hashable {
         .secrets: "key.fill",
         .cleanable: "sparkles"
     ]
+
+    static let filters = allCases.filter { $0 != .home }
 
     var id: String { rawValue }
     var titleKey: String { "filter.\(rawValue)" }

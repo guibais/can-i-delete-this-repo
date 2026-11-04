@@ -59,13 +59,8 @@ struct SecretsSection: View {
                 if store.isVaultReady && !repository.restorableSecrets.isEmpty {
                     Button(L("vault.action.restore")) { Task { await store.restoreFromVault([repository]) } }
                 }
-                Menu(L("action.backup")) {
-                    Button(L("vault.action.toFolder")) { Task { await store.exportBackup([repository]) } }
-                } primaryAction: {
-                    Task { await store.backup([repository]) }
-                }
-                .fixedSize()
-                .disabled(repository.sensitiveFiles.isEmpty)
+                Button(L("action.backup")) { store.requestBackup([repository]) }
+                    .disabled(repository.sensitiveFiles.isEmpty)
             }
             .controlSize(.small)
         } content: {
@@ -100,6 +95,12 @@ private struct SecretRow: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
             Spacer()
+            if let encrypted = item.encrypted {
+                Image(systemName: encrypted ? "lock.fill" : "lock.open")
+                    .font(.caption)
+                    .foregroundStyle(encrypted ? Color.secondary : Color.orange)
+                    .help(L(encrypted ? "vault.mode.encrypted" : "vault.mode.plain"))
+            }
             Label(L("secret.state.\(item.state.rawValue)"), systemImage: style.symbol)
                 .font(.caption)
                 .foregroundStyle(style.color)

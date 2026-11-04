@@ -11,19 +11,26 @@ final class RepositoryStore {
     var toast: Toast?
     var settings: AppSettings { didSet { settings.save() } }
     var isVaultBusy = false
-    var hasVaultKey = VaultCrypto.loadKey() != nil
-
+    var hasVaultKey = VaultCrypto.loadKey().map(VaultService.verify) ?? false
+    var activities: [Activity] = []
+    var backupRequest: BackupRequest?
+    var savings = SavingsLedger.load()
     var ledger = BackupLedger.load()
+
     private let concurrency = 6
 
     init() {
         settings = AppSettings.load()
         guard DemoData.isEnabled else { return }
         repositories = DemoData.repositories
+        activities = DemoData.activities
     }
 
     var totalSize: Int64 { repositories.reduce(0) { $0 + $1.size } }
     var totalCleanable: Int64 { repositories.reduce(0) { $0 + $1.cleanableSize } }
+    var safeRepositories: [Repository] { repositories.filter(\.isSafeToDelete) }
+    var cleanableRepositories: [Repository] { repositories.filter { $0.cleanableSize > 0 } }
+    var pendingSecretCount: Int { repositories.reduce(0) { $0 + $1.pendingSecrets.count } }
 
     func count(_ filter: SidebarFilter) -> Int {
         repositories.filter(filter.matches).count
@@ -39,6 +46,8 @@ final class RepositoryStore {
         scanProgress = 0
         defer { isScanning = false }
 
+        let id = beginActivity(L("activity.scan"), symbol: "magnifyingglass")
+        updateActivity(id, detail: L("activity.scan.searching"))
         let roots = settings.rootURLs
         let excluded = Set(settings.excluded)
         let depth = settings.maxDepth
@@ -48,7 +57,9 @@ final class RepositoryStore {
 
         let found = Set(urls.map(\.path))
         repositories.removeAll { !found.contains($0.id) }
-        await inspect(urls)
+        updateActivity(id, total: urls.count)
+        await inspect(urls, activity: id)
+        finishActivity(id, .success(L("activity.scan.done", urls.count)))
     }
 
     func refresh(_ repository: Repository) async {
@@ -57,91 +68,83 @@ final class RepositoryStore {
 
     func fetchAll() async {
         let targets = repositories.filter(\.hasRemote)
-        await forEachConcurrently(targets) { await GitService.fetch(at: $0.url) } onResult: { _ in }
+        guard !targets.isEmpty else { return }
+        let id = beginActivity(L("activity.fetchAll"), symbol: "arrow.triangle.2.circlepath", total: targets.count)
+        var completed = 0
+        var failures: [String] = []
+        await forEachConcurrently(targets) { repository in
+            (repository.name, await GitService.fetch(at: repository.url))
+        } onResult: { [self] name, result in
+            completed += 1
+            failures += result.succeeded ? [] : [name]
+            updateActivity(id, detail: name, completed: completed)
+        }
+        updateActivity(id, detail: L("activity.refreshing"))
         await inspect(targets.map(\.url))
-        toast = .success(L("toast.fetchedAll"))
+        guard failures.isEmpty else {
+            finishActivity(id, .failure(L("activity.fetchAll.failed", failures.joined(separator: ", "))))
+            return
+        }
+        finishActivity(id, .success(L("toast.fetchedAll")))
     }
 
     func fetch(_ repository: Repository) async {
-        await perform(on: repository, success: "toast.fetched") { await GitService.fetch(at: repository.url) }
+        await runBatch([repository], title: L("activity.fetch"), symbol: "arrow.down.circle") { _ in
+            L("toast.fetched", repository.name)
+        } operation: { repository, _ in
+            await GitService.fetch(at: repository.url)
+        }
     }
 
     func push(_ repository: Repository) async {
-        await perform(on: repository, success: "toast.pushed") { await GitService.push(at: repository.url) }
+        await push([repository])
     }
 
     func pushAll(_ repository: Repository) async {
-        await perform(on: repository, success: "toast.pushed") { await GitService.pushAll(at: repository.url) }
+        await runBatch([repository], title: L("activity.push"), symbol: "arrow.up.circle") { _ in
+            L("toast.pushed", repository.name)
+        } operation: { repository, _ in
+            await GitService.pushAll(at: repository.url)
+        }
+    }
+
+    func push(_ targets: [Repository]) async {
+        let items = targets.filter(\.hasRemote)
+        await runBatch(items, title: L("activity.push"), symbol: "arrow.up.circle") { activity in
+            items.count == 1 ? L("toast.pushed", items[0].name) : L("activity.push.done", activity.total)
+        } operation: { repository, _ in
+            await GitService.push(at: repository.url)
+        }
     }
 
     func commitAndPush(_ repository: Repository, message: String) async {
-        await perform(on: repository, success: "toast.committed") {
+        await runBatch([repository], title: L("activity.commit"), symbol: "checkmark.circle") { _ in
+            L("toast.committed", repository.name)
+        } operation: { repository, _ in
             await GitService.commitAndPush(at: repository.url, message: message)
         }
     }
 
     func clean(_ repository: Repository) async {
-        let urls = repository.cleanables.map { repository.url.appendingPathComponent($0.relativePath) }
-        await perform(on: repository, success: "toast.cleaned") { await FileOperations.remove(urls) }
+        await clean([repository])
     }
 
     func clean(_ targets: [Repository]) async {
-        for repository in targets where repository.cleanableSize > 0 {
-            await clean(repository)
-        }
-        toast = .success(L("toast.cleanedMany", targets.count))
-    }
-
-    func push(_ targets: [Repository]) async {
-        for repository in targets where repository.hasRemote {
-            await push(repository)
+        let items = targets.filter { $0.cleanableSize > 0 }
+        let goal = items.reduce(0) { $0 + $1.cleanableSize }
+        await runBatch(items, title: L("activity.clean"), symbol: "sparkles", goal: goal) { activity in
+            L("activity.freed", Format.bytes(activity.freed ?? 0))
+        } operation: { [self] repository, id in
+            await cleanItems(of: repository, activity: id)
         }
     }
 
     func trash(_ repository: Repository) async {
-        busyIDs.insert(repository.id)
-        let result = await FileOperations.trash(repository.url)
-        busyIDs.remove(repository.id)
-        guard result.succeeded else {
-            toast = .failure(result.message)
-            return
-        }
-        repositories.removeAll { $0.id == repository.id }
-        toast = .success(L("toast.trashed", repository.name))
+        await trash([repository])
     }
 
     func trashSafe(_ targets: [Repository]) async {
-        for repository in targets where repository.isSafeToDelete {
-            await trash(repository)
-        }
-    }
-
-    func backup(_ targets: [Repository]) async {
-        guard !isVaultReady else {
-            await backupToVault(targets)
-            return
-        }
-        await exportBackup(targets)
-    }
-
-    func exportBackup(_ targets: [Repository]) async {
-        guard let folder = settings.backupURL ?? chooseBackupFolder() else { return }
-        let result = await Task.detached(priority: .userInitiated) {
-            Result { try BackupService.backup(targets, to: folder) }
-        }.value
-
-        let location: URL
-        do {
-            location = try result.get()
-        } catch {
-            toast = .failure(error.localizedDescription)
-            return
-        }
-
-        ledger.mark(targets)
-        await inspect(targets.map(\.url))
-        toast = .success(L("toast.backup", targets.count))
-        SystemActions.revealInFinder(location)
+        await trash(targets.filter(\.isSafeToDelete))
     }
 
     func chooseBackupFolder() -> URL? {
@@ -150,15 +153,7 @@ final class RepositoryStore {
         return url
     }
 
-    private func perform(on repository: Repository, success key: String, _ operation: @escaping @Sendable () async -> CommandResult) async {
-        busyIDs.insert(repository.id)
-        let result = await operation()
-        toast = result.succeeded ? .success(L(key, repository.name)) : .failure(result.message)
-        await inspect([repository.url])
-        busyIDs.remove(repository.id)
-    }
-
-    func inspect(_ urls: [URL]) async {
+    func inspect(_ urls: [URL], activity: Activity.ID? = nil) async {
         let ledger = self.ledger
         var completed = 0
         await forEachConcurrently(urls) { url in
@@ -167,7 +162,75 @@ final class RepositoryStore {
             upsert(repository)
             completed += 1
             scanProgress = Double(completed) / Double(max(urls.count, 1))
+            guard let activity else { return }
+            updateActivity(activity, detail: repository.name, completed: completed)
         }
+    }
+
+    private func trash(_ targets: [Repository]) async {
+        let goal = targets.reduce(0) { $0 + $1.size }
+        await runBatch(targets, title: L("activity.trash"), symbol: "trash", goal: goal) { activity in
+            targets.count == 1
+                ? L("toast.trashed", targets[0].name)
+                : L("activity.trash.done", activity.total, Format.bytes(activity.freed ?? 0))
+        } operation: { [self] repository, id in
+            updateActivity(id, detail: L("activity.trash.item", repository.name))
+            let result = await FileOperations.trash(repository.url)
+            guard result.succeeded else { return result }
+            repositories.removeAll { $0.id == repository.id }
+            addFreed(repository.size, to: id)
+            savings.log(repository.name, bytes: repository.size, kind: .trashed)
+            return result
+        }
+    }
+
+    private func cleanItems(of repository: Repository, activity id: Activity.ID) async -> CommandResult {
+        var freed: Int64 = 0
+        defer { savings.log(repository.name, bytes: freed, kind: .cleaned) }
+        do {
+            for item in repository.cleanables {
+                updateActivity(id, detail: repository.name + " — " + item.relativePath)
+                var reported: Int64 = 0
+                for try await fraction in FileOperations.removeProgressively(repository.url.appendingPathComponent(item.relativePath)) {
+                    let target = Int64(Double(item.size) * fraction)
+                    addFreed(target - reported, to: id)
+                    freed += target - reported
+                    reported = target
+                }
+            }
+            return .success
+        } catch {
+            return .failure(error.localizedDescription)
+        }
+    }
+
+    private func runBatch(
+        _ targets: [Repository],
+        title: String,
+        symbol: String,
+        goal: Int64? = nil,
+        success: (Activity) -> String,
+        operation: (Repository, Activity.ID) async -> CommandResult
+    ) async {
+        guard !targets.isEmpty else { return }
+        let id = beginActivity(title, symbol: symbol, total: targets.count, goal: goal)
+        var failures: [String] = []
+        for (index, repository) in targets.enumerated() {
+            updateActivity(id, detail: repository.name, completed: index)
+            busyIDs.insert(repository.id)
+            let result = await operation(repository, id)
+            busyIDs.remove(repository.id)
+            failures += result.succeeded ? [] : [result.message]
+            updateActivity(id, completed: index + 1)
+        }
+        let remaining = targets.filter { target in repositories.contains { $0.id == target.id } }
+        updateActivity(id, detail: L("activity.refreshing"))
+        await inspect(remaining.map(\.url))
+        guard failures.isEmpty, let activity = activity(id) else {
+            finishActivity(id, .failure(failures.first ?? ""))
+            return
+        }
+        finishActivity(id, .success(success(activity)))
     }
 
     private func upsert(_ repository: Repository) {

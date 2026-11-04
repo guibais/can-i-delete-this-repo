@@ -3,6 +3,10 @@ import Foundation
 enum DemoData {
     static var isEnabled: Bool { ProcessInfo.processInfo.environment["CANIDELETE_DEMO"] == "1" }
     static var selectedName: String? { ProcessInfo.processInfo.environment["CANIDELETE_DEMO_SELECT"] }
+    static var initialFilter: SidebarFilter {
+        guard isEnabled, let name = selectedName, repositories.contains(where: { $0.name == name }) else { return .home }
+        return .all
+    }
 
     private static let gigabyte: Int64 = 1_073_741_824
     private static let megabyte: Int64 = 1_048_576
@@ -19,6 +23,22 @@ enum DemoData {
         make("dotfiles", size: 6 * megabyte, clean: [], secrets: [], days: 2),
         make("side-quest", size: 210 * megabyte, clean: [("build/", 150 * megabyte)], secrets: [".env"], remote: false, days: 45)
     ]
+
+    static var activities: [Activity] {
+        guard isEnabled, selectedName == "activity" else { return [] }
+        return [Activity(title: L("activity.clean"), symbol: "sparkles", detail: "aurora-web — node_modules/", total: 6, completed: 2, goal: 9 * gigabyte, freed: 3 * gigabyte + 410 * megabyte)]
+    }
+
+    static let savings = SavingsLedger(
+        totalFreed: 18 * gigabyte + 640 * megabyte,
+        counts: [.cleaned: 23, .trashed: 6],
+        events: [
+            SavingsEvent(name: "old-portfolio", bytes: 2 * gigabyte + 300 * megabyte, kind: .trashed, date: .now.addingTimeInterval(-3_600)),
+            SavingsEvent(name: "hackathon-2023", bytes: 1_200 * megabyte, kind: .cleaned, date: .now.addingTimeInterval(-86_400)),
+            SavingsEvent(name: "react-sandbox", bytes: 880 * megabyte, kind: .cleaned, date: .now.addingTimeInterval(-86_400 * 3)),
+            SavingsEvent(name: "unity-prototype", bytes: 6 * gigabyte, kind: .cleaned, date: .now.addingTimeInterval(-86_400 * 9))
+        ]
+    )
 
     private static func make(
         _ name: String,

@@ -15,19 +15,29 @@ struct BackupManifest: Codable {
 }
 
 enum BackupService {
-    static func backup(_ repositories: [Repository], to folder: URL) throws -> URL {
-        let fileManager = FileManager.default
+    static func prepare(in folder: URL) throws -> URL {
         let root = folder.appendingPathComponent("CanIDeleteThisRepo-Backup-\(timestamp())", isDirectory: true)
-        let files = root.appendingPathComponent("files", isDirectory: true)
-        try fileManager.createDirectory(at: files, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: files(in: root), withIntermediateDirectories: true)
+        return root
+    }
 
-        try repositories.forEach { try copySecrets(of: $0, into: files) }
+    static func copySecrets(of repository: Repository, to root: URL) throws {
+        let fileManager = FileManager.default
+        let base = files(in: root).appendingPathComponent(relativeHomePath(repository.url), isDirectory: true)
+        try repository.sensitiveFiles.forEach { file in
+            let source = repository.url.appendingPathComponent(file.relativePath)
+            let destination = base.appendingPathComponent(file.relativePath)
+            try fileManager.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try? fileManager.removeItem(at: destination)
+            try fileManager.copyItem(at: source, to: destination)
+        }
+    }
+
+    static func finalize(_ repositories: [Repository], at root: URL) throws {
         try manifest(for: repositories).write(to: root.appendingPathComponent("manifest.json"))
-
         let script = root.appendingPathComponent("restore.sh")
         try restoreScript(for: repositories).write(to: script, atomically: true, encoding: .utf8)
-        try fileManager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: script.path)
-        return root
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: script.path)
     }
 
     static func relativeHomePath(_ url: URL) -> String {
@@ -66,16 +76,8 @@ enum BackupService {
         return "restore \(quote(remote.url)) \(path)"
     }
 
-    private static func copySecrets(of repository: Repository, into files: URL) throws {
-        let fileManager = FileManager.default
-        let base = files.appendingPathComponent(relativeHomePath(repository.url), isDirectory: true)
-        try repository.sensitiveFiles.forEach { file in
-            let source = repository.url.appendingPathComponent(file.relativePath)
-            let destination = base.appendingPathComponent(file.relativePath)
-            try fileManager.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try? fileManager.removeItem(at: destination)
-            try fileManager.copyItem(at: source, to: destination)
-        }
+    private static func files(in root: URL) -> URL {
+        root.appendingPathComponent("files", isDirectory: true)
     }
 
     private static func manifest(for repositories: [Repository]) throws -> Data {

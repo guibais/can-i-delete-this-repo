@@ -19,6 +19,7 @@ extension Severity {
 
 extension SidebarFilter {
     private static let tints: [SidebarFilter: Color] = [
+        .home: .indigo,
         .all: .accentColor,
         .safe: .green,
         .attention: .orange,

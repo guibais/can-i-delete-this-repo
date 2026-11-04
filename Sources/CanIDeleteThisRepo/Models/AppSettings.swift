@@ -6,6 +6,8 @@ struct AppSettings: Codable, Equatable, Sendable {
     var maxDepth = 7
     var backupFolder: String?
     var vaultRemote: String?
+    var backupDestination: BackupDestination?
+    var vaultEncrypted: Bool?
 
     static let defaultExclusions = [
         "Library", "Applications", "Pictures", "Music", "Movies", "Public",
@@ -18,16 +20,11 @@ struct AppSettings: Codable, Equatable, Sendable {
     var backupURL: URL? { backupFolder.map { URL(fileURLWithPath: $0, isDirectory: true) } }
 
     static func load() -> AppSettings {
-        guard
-            let data = UserDefaults.standard.data(forKey: storageKey),
-            let settings = try? JSONDecoder().decode(AppSettings.self, from: data)
-        else { return AppSettings() }
-        return settings
+        Persistence.load(AppSettings.self, key: storageKey) ?? AppSettings()
     }
 
     func save() {
-        guard let data = try? JSONEncoder().encode(self) else { return }
-        UserDefaults.standard.set(data, forKey: Self.storageKey)
+        Persistence.save(self, key: Self.storageKey)
     }
 }
 
@@ -49,15 +46,10 @@ struct BackupLedger: Codable, Sendable {
     }
 
     static func load() -> BackupLedger {
-        guard
-            let data = UserDefaults.standard.data(forKey: storageKey),
-            let ledger = try? JSONDecoder().decode(BackupLedger.self, from: data)
-        else { return BackupLedger() }
-        return ledger
+        Persistence.load(BackupLedger.self, key: storageKey) ?? BackupLedger()
     }
 
     private func save() {
-        guard let data = try? JSONEncoder().encode(self) else { return }
-        UserDefaults.standard.set(data, forKey: Self.storageKey)
+        Persistence.save(self, key: Self.storageKey)
     }
 }

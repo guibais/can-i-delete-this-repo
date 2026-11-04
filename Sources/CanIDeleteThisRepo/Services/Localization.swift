@@ -32,9 +32,15 @@ func L(_ key: String, _ arguments: CVarArg...) -> String {
 
 enum Format {
     private static let relativeFormatter = RelativeDateTimeFormatter()
+    private static let byteFormatter: ByteCountFormatter = {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        formatter.allowsNonnumericFormatting = false
+        return formatter
+    }()
 
     static func bytes(_ value: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: value, countStyle: .file)
+        byteFormatter.string(fromByteCount: value)
     }
 
     static func relative(_ date: Date) -> String {

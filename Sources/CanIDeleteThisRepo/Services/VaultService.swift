@@ -14,9 +14,12 @@ enum VaultService {
         FileManager.default.fileExists(atPath: root.appendingPathComponent(".git").path)
     }
 
-    static var hasKeyCheck: Bool {
-        FileManager.default.fileExists(atPath: configURL.path)
+    static var config: VaultConfig? {
+        read(VaultConfig.self, at: configURL)
     }
+
+    static var isInitialized: Bool { config != nil }
+    static var hasKeyCheck: Bool { config?.keyCheck != nil }
 
     static func identity(for url: URL, remotes: [GitRemote]) -> String {
         let remote = remotes.first(where: { $0.name == "origin" }) ?? remotes.first
@@ -36,15 +39,15 @@ enum VaultService {
 
     static func verify(_ key: SymmetricKey) -> Bool {
         guard
-            let config = read(VaultConfig.self, at: configURL),
-            let data = Data(base64Encoded: config.keyCheck),
+            let check = config?.keyCheck,
+            let data = Data(base64Encoded: check),
             let plain = try? VaultCrypto.decrypt(data, with: key)
         else { return false }
         return plain == checkPhrase
     }
 
-    static func initialize(with key: SymmetricKey) throws {
-        let check = try VaultCrypto.encrypt(checkPhrase, with: key).base64EncodedString()
+    static func initialize(with key: SymmetricKey?) throws {
+        let check = try key.map { try VaultCrypto.encrypt(checkPhrase, with: $0).base64EncodedString() }
         try write(VaultConfig(version: 1, keyCheck: check), to: configURL)
         try readme.write(to: root.appendingPathComponent("README.md"), atomically: true, encoding: .utf8)
     }
@@ -86,70 +89,115 @@ enum VaultService {
         return await git(["pull", "--rebase", "--autostash"])
     }
 
-    static func publish(message: String) async -> CommandResult {
-        _ = await git(["add", "-A"])
+    static func commit(message: String) async -> CommandResult {
+        _ = await git(["add", "--all", "--force", "--", ".", ":(exclude,glob)**/.DS_Store"])
         let unchanged = await git(["diff", "--cached", "--quiet"])
         guard !unchanged.succeeded else { return .success }
         let email = await git(["config", "user.email"])
-        let identity = email.trimmedOutput.isEmpty ? ["-c", "user.name=Can I Delete This Repo", "-c", "user.email=can-i-delete-this-repo@localhost"] : []
-        let commit = await git(identity + ["commit", "-m", message])
-        guard commit.succeeded else { return commit }
-        return await git(["push", "-u", "origin", "HEAD"])
+        let identity = email.trimmedOutput.isEmpty
+            ? ["-c", "user.name=Can I Delete This Repo", "-c", "user.email=can-i-delete-this-repo@localhost"]
+            : []
+        return await git(identity + ["commit", "-m", message])
     }
 
-    static func backup(_ repositories: [Repository], with key: SymmetricKey) throws -> VaultBackupSummary {
-        var index = index()
-        var projects: [String] = []
-        var files = 0
+    static func push() async -> CommandResult {
+        await git(["push", "-u", "origin", "HEAD"])
+    }
 
-        for repository in repositories where !repository.sensitiveFiles.isEmpty {
-            let identity = identity(for: repository.url, remotes: repository.snapshot.remotes)
-            var manifest = manifest(for: identity) ?? VaultManifest(
-                identity: identity,
-                name: repository.name,
-                remote: repository.snapshot.remotes.first?.url,
-                files: [:]
-            )
-            let changed = repository.sensitiveFiles.filter { manifest.files[$0.relativePath]?.sha256 != $0.sha256 }
-            guard !changed.isEmpty else { continue }
+    static func gitInfo() async -> VaultGitInfo {
+        async let branch = git(["rev-parse", "--abbrev-ref", "HEAD"])
+        async let last = git(["log", "-1", "--format=%s%x1f%ct"])
+        async let count = git(["rev-list", "--count", "HEAD"])
+        async let status = git(["status", "--porcelain=v1", "-b"])
 
-            for file in changed {
-                let plain = try Data(contentsOf: repository.url.appendingPathComponent(file.relativePath))
-                let destination = encryptedURL(identity: identity, path: file.relativePath)
-                try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
-                try VaultCrypto.encrypt(plain, with: key).write(to: destination, options: .atomic)
-                manifest.files[file.relativePath] = VaultEntry(sha256: file.sha256, size: file.size, updatedAt: .now, machine: machine)
-            }
+        let lastParts = (await last).trimmedOutput.components(separatedBy: "\u{1f}")
+        let statusLines = (await status).output.split(separator: "\n").map(String.init)
+        let header = statusLines.first ?? ""
+        let branchName = (await branch).trimmedOutput
 
-            manifest.remote = repository.snapshot.remotes.first?.url ?? manifest.remote
-            try write(manifest, to: manifestURL(for: identity))
-            index.projects[identity] = VaultIndexEntry(
-                identity: identity,
-                name: repository.name,
-                remote: manifest.remote,
+        return VaultGitInfo(
+            branch: branchName.isEmpty || branchName == "HEAD" ? GitService.parseBranch(header) : branchName,
+            lastCommitMessage: lastParts.first.flatMap { $0.isEmpty ? nil : $0 },
+            lastCommitDate: lastParts.dropFirst().first.flatMap(TimeInterval.init).map(Date.init(timeIntervalSince1970:)),
+            commits: Int((await count).trimmedOutput) ?? 0,
+            ahead: GitService.parseAhead(header),
+            behind: GitService.parseBehind(header),
+            pendingChanges: max(statusLines.count - 1, 0)
+        )
+    }
+
+    static func backupRepository(_ repository: Repository, key: SymmetricKey?, encrypt: Bool) throws -> Int {
+        guard !repository.sensitiveFiles.isEmpty else { return 0 }
+        guard !encrypt || key != nil else { throw VaultError.missingKey }
+
+        let identity = identity(for: repository.url, remotes: repository.snapshot.remotes)
+        var manifest = manifest(for: identity) ?? VaultManifest(
+            identity: identity,
+            name: repository.name,
+            remote: repository.snapshot.remotes.first?.url,
+            files: [:]
+        )
+        let changed = repository.sensitiveFiles.filter { file in
+            guard let entry = manifest.files[file.relativePath] else { return true }
+            return entry.sha256 != file.sha256 || entry.encrypted != encrypt
+        }
+        guard !changed.isEmpty else { return 0 }
+
+        for file in changed {
+            let plain = try Data(contentsOf: repository.url.appendingPathComponent(file.relativePath))
+            let destination = storedURL(identity: identity, path: file.relativePath, encrypted: encrypt)
+            try? FileManager.default.removeItem(at: storedURL(identity: identity, path: file.relativePath, encrypted: !encrypt))
+            try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try encode(plain, with: encrypt ? key : nil).write(to: destination, options: .atomic)
+            manifest.files[file.relativePath] = VaultEntry(
+                sha256: file.sha256,
+                size: file.size,
                 updatedAt: .now,
-                fileCount: manifest.files.count
+                machine: machine,
+                encrypted: encrypt
             )
-            projects.append(repository.name)
-            files += changed.count
         }
 
+        manifest.remote = repository.snapshot.remotes.first?.url ?? manifest.remote
+        try write(manifest, to: manifestURL(for: identity))
+
+        var index = index()
+        index.projects[identity] = VaultIndexEntry(
+            identity: identity,
+            name: repository.name,
+            remote: manifest.remote,
+            updatedAt: .now,
+            fileCount: manifest.files.count
+        )
         try write(index, to: indexURL)
-        return VaultBackupSummary(projects: projects, files: files)
+        return changed.count
     }
 
-    static func restore(_ repository: Repository, with key: SymmetricKey) throws -> Int {
+    static func restore(_ repository: Repository, key: SymmetricKey?) throws -> Int {
         let identity = identity(for: repository.url, remotes: repository.snapshot.remotes)
-        let items = repository.restorableSecrets
-        for item in items {
-            let encrypted = try Data(contentsOf: encryptedURL(identity: identity, path: item.relativePath))
-            let plain = try VaultCrypto.decrypt(encrypted, with: key)
-            let destination = repository.url.appendingPathComponent(item.relativePath)
+        let items = repository.restorableSecrets.compactMap { item in
+            repository.vaultFiles[item.relativePath].map { (item.relativePath, $0) }
+        }
+        for (path, entry) in items {
+            let stored = try Data(contentsOf: storedURL(identity: identity, path: path, encrypted: entry.encrypted))
+            let plain = try decode(stored, encrypted: entry.encrypted, key: key)
+            let destination = repository.url.appendingPathComponent(path)
             try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
             try keepCopy(of: destination)
             try plain.write(to: destination, options: .atomic)
         }
         return items.count
+    }
+
+    private static func encode(_ data: Data, with key: SymmetricKey?) throws -> Data {
+        guard let key else { return data }
+        return try VaultCrypto.encrypt(data, with: key)
+    }
+
+    private static func decode(_ data: Data, encrypted: Bool, key: SymmetricKey?) throws -> Data {
+        guard encrypted else { return data }
+        guard let key else { throw VaultError.missingKey }
+        return try VaultCrypto.decrypt(data, with: key)
     }
 
     private static func keepCopy(of url: URL) throws {
@@ -167,8 +215,9 @@ enum VaultService {
         root.appendingPathComponent(identity, isDirectory: true).appendingPathComponent("manifest.json")
     }
 
-    private static func encryptedURL(identity: String, path: String) -> URL {
-        root.appendingPathComponent(identity, isDirectory: true).appendingPathComponent("files/" + path + ".enc")
+    private static func storedURL(identity: String, path: String, encrypted: Bool) -> URL {
+        root.appendingPathComponent(identity, isDirectory: true)
+            .appendingPathComponent("files/" + path + (encrypted ? ".enc" : ""))
     }
 
     private static func read<T: Decodable>(_ type: T.Type, at url: URL) -> T? {
@@ -189,12 +238,12 @@ enum VaultService {
     private static let readme = """
     # Can I Delete This Repo? · Vault
 
-    Encrypted backup of ignored secrets (.env and friends) managed by Can I Delete This Repo? (github.com/guibais/can-i-delete-this-repo).
+    Backup of ignored secrets (.env and friends) managed by Can I Delete This Repo? (github.com/guibais/can-i-delete-this-repo).
 
-    - Every file is encrypted on your Mac with AES-256-GCM before it is committed.
-    - File format: the 4 bytes `CDR1` followed by the CryptoKit AES.GCM combined box (nonce + ciphertext + tag).
-    - The key lives in your Keychain. Keep the recovery key in a password manager.
-    - Layout: `<host>/<owner>/<repo>/manifest.json` and `<host>/<owner>/<repo>/files/<path>.enc`.
+    - Encrypted files end with `.enc`: the 4 bytes `CDR1` followed by the CryptoKit AES.GCM combined box (nonce + ciphertext + tag).
+    - Files without `.enc` were backed up in plain text by choice.
+    - The encryption key lives in your Keychain. Keep the recovery key in a password manager.
+    - Layout: `<host>/<owner>/<repo>/manifest.json` and `<host>/<owner>/<repo>/files/<path>[.enc]`.
 
     Never make this repository public.
     """

@@ -121,3 +121,49 @@ final class VaultCryptoTests: XCTestCase {
         XCTAssertTrue(script.contains("restore 'git@github.com:me/a.git'"))
     }
 }
+
+final class OverhaulTests: XCTestCase {
+    func testParseAheadAndBehind() {
+        let header = "## main...origin/main [ahead 3, behind 2]"
+        XCTAssertEqual(GitService.parseAhead(header), 3)
+        XCTAssertEqual(GitService.parseBehind(header), 2)
+        XCTAssertEqual(GitService.parseAhead("## main...origin/main"), 0)
+    }
+
+    func testLegacyVaultEntryDefaultsToEncrypted() throws {
+        let json = Data(#"{"sha256":"a","size":1,"updatedAt":"2026-01-01T00:00:00Z","machine":"Mac"}"#.utf8)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        XCTAssertTrue(try decoder.decode(VaultEntry.self, from: json).encrypted)
+    }
+
+    func testActivityProgressUsesFreedBytesWhenGoalIsSet() {
+        var activity = Activity(title: "", symbol: "", total: 4, completed: 1, goal: 200, freed: 50)
+        XCTAssertEqual(activity.progress, 0.25)
+        XCTAssertEqual(activity.counter, "1/4")
+        activity.goal = nil
+        XCTAssertEqual(activity.progress, 0.25)
+        activity.outcome = .success("ok")
+        XCTAssertEqual(activity.progress, 1)
+    }
+
+    func testSavingsLedgerAccumulates() {
+        var ledger = SavingsLedger()
+        ledger.add(100)
+        ledger.add(-5)
+        XCTAssertEqual(ledger.totalFreed, 100)
+    }
+
+    func testRemoveProgressivelyDeletesEverything() async throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: folder.appendingPathComponent("a/b"), withIntermediateDirectories: true)
+        try Data("x".utf8).write(to: folder.appendingPathComponent("c.txt"))
+        var fractions: [Double] = []
+        for try await fraction in FileOperations.removeProgressively(folder) {
+            fractions.append(fraction)
+        }
+        XCTAssertEqual(fractions.last, 1)
+        XCTAssertEqual(fractions, fractions.sorted())
+        XCTAssertFalse(FileManager.default.fileExists(atPath: folder.path))
+    }
+}

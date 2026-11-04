@@ -121,7 +121,7 @@ struct RepositoryActionsMenu: View {
             Divider()
         }
         Button(L("action.push")) { Task { await store.push(repositories) } }
-        Button(L("action.backup")) { Task { await store.backup(repositories) } }
+        Button(L("action.backup")) { store.requestBackup(repositories) }
         Button(L("action.clean")) { Task { await store.clean(repositories) } }
     }
 }

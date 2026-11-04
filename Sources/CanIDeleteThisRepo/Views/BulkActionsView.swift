@@ -27,7 +27,7 @@ struct BulkActionsView: View {
                             Task { await store.push(repositories) }
                         }
                         BulkButton(title: L("action.backup"), symbol: "key") {
-                            Task { await store.backup(repositories) }
+                            store.requestBackup(repositories)
                         }
                         BulkButton(title: L("action.clean"), symbol: "sparkles") { confirmClean() }
                             .disabled(cleanable == 0)

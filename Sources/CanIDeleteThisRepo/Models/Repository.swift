@@ -37,11 +37,13 @@ struct Repository: Identifiable, Hashable, Sendable {
 
     var secretItems: [SecretItem] {
         let localPaths = Set(sensitiveFiles.map(\.relativePath))
-        let local = sensitiveFiles.map { SecretItem(relativePath: $0.relativePath, state: state(of: $0)) }
+        let local = sensitiveFiles.map {
+            SecretItem(relativePath: $0.relativePath, state: state(of: $0), encrypted: vaultFiles[$0.relativePath]?.encrypted)
+        }
         let missing = vaultFiles.keys
             .filter { !localPaths.contains($0) }
             .sorted()
-            .map { SecretItem(relativePath: $0, state: .missingLocally) }
+            .map { SecretItem(relativePath: $0, state: .missingLocally, encrypted: vaultFiles[$0]?.encrypted) }
         return local + missing
     }
 

@@ -35,7 +35,7 @@ struct ListActionBar: View {
                 Button { Task { await store.push(selected) } } label: {
                     Label(L("action.push"), systemImage: "arrow.up.circle")
                 }
-                Button { Task { await store.backup(selected) } } label: {
+                Button { store.requestBackup(selected) } label: {
                     Label(L("action.backup"), systemImage: "key")
                 }
                 if store.isVaultReady {

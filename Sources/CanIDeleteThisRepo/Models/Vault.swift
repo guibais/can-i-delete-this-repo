@@ -5,6 +5,22 @@ struct VaultEntry: Codable, Hashable, Sendable {
     let size: Int64
     let updatedAt: Date
     let machine: String
+    var encrypted = true
+
+    private enum CodingKeys: String, CodingKey {
+        case sha256, size, updatedAt, machine, encrypted
+    }
+}
+
+extension VaultEntry {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        sha256 = try container.decode(String.self, forKey: .sha256)
+        size = try container.decode(Int64.self, forKey: .size)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        machine = try container.decode(String.self, forKey: .machine)
+        encrypted = try container.decodeIfPresent(Bool.self, forKey: .encrypted) ?? true
+    }
 }
 
 struct VaultManifest: Codable, Sendable {
@@ -30,12 +46,17 @@ struct VaultIndex: Codable, Sendable {
 
 struct VaultConfig: Codable, Sendable {
     let version: Int
-    let keyCheck: String
+    let keyCheck: String?
 }
 
-struct VaultBackupSummary: Sendable {
-    let projects: [String]
-    let files: Int
+struct VaultGitInfo: Sendable {
+    let branch: String?
+    let lastCommitMessage: String?
+    let lastCommitDate: Date?
+    let commits: Int
+    let ahead: Int
+    let behind: Int
+    let pendingChanges: Int
 }
 
 enum RepoVisibility: Sendable {
@@ -44,8 +65,8 @@ enum RepoVisibility: Sendable {
     case unknown
 }
 
-enum VaultConnection: Sendable, Equatable {
-    case needsNewKey
+enum VaultConnection: Sendable, Hashable {
+    case needsSetup
     case needsRecoveryKey
     case ready
     case failed(String)
@@ -65,6 +86,7 @@ enum SecretSyncState: String, Hashable, Sendable {
 struct SecretItem: Identifiable, Hashable, Sendable {
     let relativePath: String
     let state: SecretSyncState
+    var encrypted: Bool?
 
     var id: String { relativePath }
 }

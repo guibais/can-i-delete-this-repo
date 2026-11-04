@@ -1,7 +1,8 @@
 import SwiftUI
 
-private enum SetupStage {
+private enum SetupStage: Equatable {
     case choose
+    case mode
     case newKey(String)
     case recovery
 }
@@ -9,11 +10,13 @@ private enum SetupStage {
 struct VaultSetupSheet: View {
     @Environment(RepositoryStore.self) private var store
     @Environment(\.dismiss) private var dismiss
+    var startAtRecovery = false
     @State private var stage: SetupStage = .choose
     @State private var useExisting = false
     @State private var repoName = "secrets-vault"
     @State private var remote = ""
     @State private var recovery = ""
+    @State private var encrypted = true
     @State private var savedKey = false
     @State private var error: String?
 
@@ -30,15 +33,18 @@ struct VaultSetupSheet: View {
             }
         }
         .padding(24)
-        .frame(width: 500)
+        .frame(width: 540)
         .disabled(store.isVaultBusy)
-        .overlay { if store.isVaultBusy { ProgressView() } }
+        .statusOverlay()
+        .animation(.snappy, value: stage)
+        .onAppear { stage = startAtRecovery ? .recovery : .choose }
     }
 
     @ViewBuilder
     private var content: some View {
         switch stage {
         case .choose: chooseView
+        case .mode: modeView
         case .newKey(let key): newKeyView(key)
         case .recovery: recoveryView
         }
@@ -71,6 +77,36 @@ struct VaultSetupSheet: View {
         }
     }
 
+    private var modeView: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(L("vault.setup.modeMessage"))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 12) {
+                ChoiceCard(
+                    title: L("vault.mode.encrypted"),
+                    subtitle: L("vault.mode.encrypted.subtitle"),
+                    symbol: "lock.fill",
+                    tint: .green,
+                    isSelected: encrypted
+                ) { encrypted = true }
+                ChoiceCard(
+                    title: L("vault.mode.plain"),
+                    subtitle: L("vault.mode.plain.subtitle"),
+                    symbol: "lock.open.fill",
+                    tint: .orange,
+                    isSelected: !encrypted
+                ) { encrypted = false }
+            }
+            if !encrypted {
+                InfoBanner(text: L("backup.plainWarning"), symbol: "exclamationmark.triangle.fill")
+            }
+            buttons(primary: L("onboarding.continue"), disabled: false) {
+                Task { await configure() }
+            }
+        }
+    }
+
     private func newKeyView(_ key: String) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(L("vault.setup.keyMessage"))
@@ -90,14 +126,20 @@ struct VaultSetupSheet: View {
             TextField("XXXXXXXX-XXXXXXXX-…", text: $recovery)
                 .textFieldStyle(.roundedBorder)
                 .font(.body.monospaced())
-            buttons(primary: L("vault.setup.unlock"), disabled: recovery.isEmpty) {
+            Text(L("vault.setup.withoutKeyHint"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            buttons(primary: L("vault.setup.unlock"), disabled: recovery.isEmpty, secondary: L("vault.setup.continueWithoutKey")) {
                 Task { await unlock() }
             }
         }
     }
 
-    private func buttons(primary: String, disabled: Bool, action: @escaping () -> Void) -> some View {
+    private func buttons(primary: String, disabled: Bool, secondary: String? = nil, action: @escaping () -> Void) -> some View {
         HStack {
+            if let secondary {
+                Button(secondary) { dismiss() }
+            }
             Spacer()
             Button(L("action.cancel"), role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
@@ -112,24 +154,28 @@ struct VaultSetupSheet: View {
         error = nil
         let url = useExisting ? remote.trimmingCharacters(in: .whitespaces) : await store.createVaultRepository(named: repoName)
         guard let url else { return }
-        let connection = await store.connectVault(remote: url)
-        await handle(connection)
+        handle(await store.connectVault(remote: url))
     }
 
-    private func handle(_ connection: VaultConnection) async {
+    private func handle(_ connection: VaultConnection) {
+        let stages: [VaultConnection: SetupStage] = [.needsSetup: .mode, .needsRecoveryKey: .recovery]
         if case .failed(let message) = connection {
             error = message
             return
         }
-        if connection == .needsRecoveryKey {
-            stage = .recovery
-            return
-        }
-        if connection == .ready {
+        guard let next = stages[connection] else {
             dismiss()
             return
         }
-        guard let key = await store.createVaultKey() else { return }
+        stage = next
+    }
+
+    private func configure() async {
+        let key = await store.setupVault(encrypted: encrypted)
+        guard encrypted, let key else {
+            dismiss()
+            return
+        }
         stage = .newKey(key)
     }
 

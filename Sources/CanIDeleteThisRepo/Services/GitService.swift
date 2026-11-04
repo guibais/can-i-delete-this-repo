@@ -67,7 +67,15 @@ enum GitService {
     }
 
     static func parseBehind(_ header: String) -> Int {
-        guard let tail = header.components(separatedBy: "behind ").dropFirst().first else { return 0 }
+        trackingCount("behind", in: header)
+    }
+
+    static func parseAhead(_ header: String) -> Int {
+        trackingCount("ahead", in: header)
+    }
+
+    private static func trackingCount(_ word: String, in header: String) -> Int {
+        guard let tail = header.components(separatedBy: word + " ").dropFirst().first else { return 0 }
         return Int(tail.prefix(while: \.isNumber)) ?? 0
     }
 

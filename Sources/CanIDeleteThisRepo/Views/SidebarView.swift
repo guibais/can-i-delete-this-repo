@@ -6,8 +6,15 @@ struct SidebarView: View {
 
     var body: some View {
         List(selection: $filter) {
+            Label {
+                Text(L(SidebarFilter.home.titleKey))
+            } icon: {
+                Image(systemName: SidebarFilter.home.symbol).foregroundStyle(SidebarFilter.home.tint)
+            }
+            .tag(SidebarFilter.home)
+
             Section(L("sidebar.section")) {
-                ForEach(SidebarFilter.allCases) { item in
+                ForEach(SidebarFilter.filters) { item in
                     Label {
                         Text(L(item.titleKey))
                     } icon: {

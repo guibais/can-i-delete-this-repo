@@ -124,3 +124,63 @@ extension View {
         }
     }
 }
+
+struct ChoiceCard: View {
+    let title: String
+    let subtitle: String
+    let symbol: String
+    var tint: Color = .accentColor
+    let isSelected: Bool
+    var isEnabled = true
+    let action: () -> Void
+
+    private var shape: RoundedRectangle { RoundedRectangle(cornerRadius: 14, style: .continuous) }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Image(systemName: symbol)
+                        .font(.title2)
+                        .foregroundStyle(tint)
+                        .symbolRenderingMode(.hierarchical)
+                    Spacer()
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .foregroundStyle(isSelected ? tint : Color.secondary)
+                        .contentTransition(.symbolEffect(.replace))
+                }
+                Text(title)
+                    .font(.headline)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, minHeight: 108, alignment: .topLeading)
+            .background(shape.fill(isSelected ? tint.opacity(0.12) : Color.secondary.opacity(0.06)))
+            .overlay(shape.strokeBorder(isSelected ? tint : Color.secondary.opacity(0.2), lineWidth: isSelected ? 2 : 1))
+            .contentShape(shape)
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.5)
+        .animation(.snappy, value: isSelected)
+    }
+}
+
+struct InfoBanner: View {
+    let text: String
+    let symbol: String
+    var tint: Color = .orange
+
+    var body: some View {
+        Label(text, systemImage: symbol)
+            .font(.callout)
+            .foregroundStyle(tint)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+}

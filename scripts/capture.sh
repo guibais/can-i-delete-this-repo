@@ -17,7 +17,7 @@ capture() {
   local name="$1" select="$2"
   pkill -x CanIDeleteThisRepo || true
   CANIDELETE_DEMO=1 CANIDELETE_DEMO_SELECT="$select" "$APP" >/dev/null 2>&1 &
-  sleep 4
+  sleep 6
   osascript -e 'tell application "System Events" to set frontmost of (first process whose name is "CanIDeleteThisRepo") to true' || true
   sleep 1
   screencapture -o -x -l"$(window_id)" "$OUT/$name.png"
@@ -25,6 +25,7 @@ capture() {
 }
 
 capture overview none
+capture activity activity
 capture detail aurora-web
 capture safe atlas-api
 capture onboarding onboarding
