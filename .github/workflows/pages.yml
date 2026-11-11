@@ -32,7 +32,7 @@ jobs:
           mkdir -p site/assets
           cp docs/media/can-i-delete-this-repo.mp4 docs/screenshots/*.png Support/AppIcon.png site/assets/
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
       - id: deployment
